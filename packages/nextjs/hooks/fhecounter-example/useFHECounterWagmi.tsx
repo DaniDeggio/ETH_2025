@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDeployedContractInfo } from "../helper";
 import { useWagmiEthers } from "../wagmi/useWagmiEthers";
 import { FhevmInstance } from "@se-2/fhevm-sdk";
@@ -12,9 +12,9 @@ import {
   useInMemoryStorage,
 } from "@se-2/fhevm-sdk";
 import { ethers } from "ethers";
+import { useReadContract } from "wagmi";
 import type { Contract } from "~~/utils/scaffold-eth/contract";
 import type { AllowedChainIds } from "~~/utils/scaffold-eth/networks";
-import { useReadContract } from "wagmi";
 
 /**
  * useFHECounterWagmi - Minimal FHE Counter hook for Wagmi devs
@@ -61,17 +61,15 @@ export const useFHECounterWagmi = (parameters: {
     const providerOrSigner = mode === "read" ? ethersReadonlyProvider : ethersSigner;
     if (!providerOrSigner) return undefined;
     return new ethers.Contract(
-      fheCounter!.address,
-      (fheCounter as FHECounterInfo).abi,
+      fheCounter!.address as unknown as `0x${string}`,
+      (fheCounter as FHECounterInfo).abi as unknown as ethers.InterfaceAbi,
       providerOrSigner,
     );
   };
 
   // Read count handle via wagmi
   const readResult = useReadContract({
-    address: (hasContract ? (fheCounter!.address as unknown as `0x${string}`) : undefined) as
-      | `0x${string}`
-      | undefined,
+    address: (hasContract ? (fheCounter!.address as unknown as `0x${string}`) : undefined) as `0x${string}` | undefined,
     abi: (hasContract ? ((fheCounter as FHECounterInfo).abi as any) : undefined) as any,
     functionName: "getCount" as const,
     query: {
@@ -95,7 +93,7 @@ export const useFHECounterWagmi = (parameters: {
   // Decrypt (reuse existing decrypt hook for simplicity)
   const requests = useMemo(() => {
     if (!hasContract || !countHandle || countHandle === ethers.ZeroHash) return undefined;
-    return [{ handle: countHandle, contractAddress: fheCounter!.address } as const];
+    return [{ handle: countHandle, contractAddress: fheCounter!.address as unknown as `0x${string}` }] as const;
   }, [hasContract, fheCounter?.address, countHandle]);
 
   const {
@@ -128,16 +126,26 @@ export const useFHECounterWagmi = (parameters: {
   const decryptCountHandle = decrypt;
 
   // Mutations (increment/decrement)
-  const { encryptWith } = useFHEEncryption({ instance, ethersSigner: ethersSigner as any, contractAddress: fheCounter?.address });
+  const { encryptWith } = useFHEEncryption({
+    instance,
+    ethersSigner: ethersSigner as any,
+    contractAddress: fheCounter?.address as unknown as `0x${string}` | undefined,
+  });
   const canUpdateCounter = useMemo(
     () => Boolean(hasContract && instance && hasSigner && !isProcessing),
     [hasContract, instance, hasSigner, isProcessing],
   );
 
   const getEncryptionMethodFor = (functionName: "increment" | "decrement") => {
-    const functionAbi = fheCounter?.abi.find(item => item.type === "function" && item.name === functionName);
-    if (!functionAbi) return { method: undefined as string | undefined, error: `Function ABI not found for ${functionName}` } as const;
-    if (!functionAbi.inputs || functionAbi.inputs.length === 0)
+    const functionAbi = (fheCounter?.abi as any[])?.find(
+      (item: any) => item?.type === "function" && item?.name === functionName,
+    ) as any | undefined;
+    if (!functionAbi)
+      return {
+        method: undefined as string | undefined,
+        error: `Function ABI not found for ${functionName}`,
+      } as const;
+    if (!functionAbi?.inputs || functionAbi.inputs.length === 0)
       return { method: undefined as string | undefined, error: `No inputs found for ${functionName}` } as const;
     const firstInput = functionAbi.inputs[0]!;
     return { method: getEncryptionMethod(firstInput.internalType), error: undefined } as const;
@@ -163,7 +171,7 @@ export const useFHECounterWagmi = (parameters: {
         const writeContract = getContract("write");
         if (!writeContract) return setMessage("Contract info or signer not available");
 
-        const params = buildParamsFromAbi(enc, [...fheCounter!.abi] as any[], op);
+        const params = buildParamsFromAbi(enc, [...(fheCounter!.abi as any[])] as any[], op);
         const tx = await (op === "increment" ? writeContract.increment(...params) : writeContract.decrement(...params));
         setMessage("Waiting for transaction...");
         await tx.wait();

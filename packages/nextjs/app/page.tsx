@@ -7,7 +7,8 @@ import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+  const { address } = useAccount();
+  console.log("User address:", address);
 
   return (
     <>
@@ -19,7 +20,7 @@ const Home: NextPage = () => {
           </h1>
           <div className="flex justify-center items-center space-x-2 flex-col">
             <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
+            <Address address={address} />
           </div>
 
           <p className="text-center text-lg">

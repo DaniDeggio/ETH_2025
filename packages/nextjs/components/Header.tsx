@@ -5,10 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@civic/auth-web3/react";
-import { hardhat } from "viem/chains";
+import { useAutoConnect } from "@civic/auth-web3/wagmi";
+// import { hardhat } from "viem/chains";
 import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { FaucetButton } from "~~/components/scaffold-eth";
-import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -25,6 +25,10 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "Debug Contracts",
     href: "/debug",
     icon: <BugAntIcon className="h-4 w-4" />,
+  },
+  {
+    label: "FHE Counter Demo",
+    href: "/test",
   },
 ];
 
@@ -58,13 +62,15 @@ export const HeaderMenuLinks = () => {
  * Site header
  */
 export const Header = () => {
-  const { targetNetwork } = useTargetNetwork();
-  const isLocalNetwork = targetNetwork.id === hardhat.id;
+  // const { targetNetwork } = useTargetNetwork();
+  // const isLocalNetwork = targetNetwork.id === hardhat.id;
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
   useOutsideClick(burgerMenuRef, () => {
     burgerMenuRef?.current?.removeAttribute("open");
   });
+
+  useAutoConnect();
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
@@ -97,7 +103,6 @@ export const Header = () => {
       </div>
       <div className="navbar-end grow mr-4 flex items-center gap-3">
         <UserButton />
-        {isLocalNetwork && <FaucetButton />}
       </div>
     </div>
   );

@@ -1,4 +1,9 @@
+import { createCivicAuthPlugin } from "@civic/auth-web3/nextjs";
 import type { NextConfig } from "next";
+
+const withCivicAuth = createCivicAuthPlugin({
+  clientId: process.env.NEXT_PUBLIC_CIVIC_CLIENT_ID || "3b889881-9a03-4c36-b1a5-56c91a5913bb",
+});
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -26,4 +31,4 @@ if (isIpfs) {
   };
 }
 
-module.exports = nextConfig;
+export default withCivicAuth(nextConfig);
