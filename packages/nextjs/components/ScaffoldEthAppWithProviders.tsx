@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CivicAuthProvider } from "@civic/auth-web3/react";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
@@ -41,24 +42,33 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
   const [mounted, setMounted] = useState(false);
+  const civicClientId = process.env.NEXT_PUBLIC_CIVIC_CLIENT_ID ?? "a1f2009a-1aca-4909-a161-fcc38800dee3";
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!civicClientId) {
+      console.warn("Civic Auth client ID is not configured. Set NEXT_PUBLIC_CIVIC_CLIENT_ID to hide this warning.");
+    }
+  }, [civicClientId]);
+
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <InMemoryStorageProvider>
-          <RainbowKitProvider
-            avatar={BlockieAvatar}
-            theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-          >
-            <ProgressBar height="3px" color="#2299dd" />
-            <ScaffoldEthApp>{children}</ScaffoldEthApp>
-          </RainbowKitProvider>
-        </InMemoryStorageProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <CivicAuthProvider clientId={civicClientId}>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <InMemoryStorageProvider>
+            <RainbowKitProvider
+              avatar={BlockieAvatar}
+              theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
+            >
+              <ProgressBar height="3px" color="#2299dd" />
+              <ScaffoldEthApp>{children}</ScaffoldEthApp>
+            </RainbowKitProvider>
+          </InMemoryStorageProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </CivicAuthProvider>
   );
 };

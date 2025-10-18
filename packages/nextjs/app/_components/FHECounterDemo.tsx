@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
+import { useUser } from "@civic/auth-web3/react";
 import { useFhevm } from "@se-2/fhevm-sdk";
 import { useAccount } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useFHECounterWagmi } from "~~/hooks/fhecounter-example/useFHECounterWagmi";
 
 /*
@@ -14,6 +14,7 @@ import { useFHECounterWagmi } from "~~/hooks/fhecounter-example/useFHECounterWag
  */
 export const FHECounterDemo = () => {
   const { isConnected, chain } = useAccount();
+  const { user } = useUser();
 
   const chainId = chain?.id;
 
@@ -88,6 +89,24 @@ export const FHECounterDemo = () => {
   const titleClass = "font-bold text-gray-900 text-xl mb-4 border-b-1 border-gray-700 pb-2";
   const sectionClass = "bg-[#f4f4f4] shadow-lg p-6 mb-6 text-gray-900";
 
+  if (!user) {
+    return (
+      <div className="max-w-6xl mx-auto p-6 text-gray-900">
+        <div className="flex items-center justify-center">
+          <div className="bg-white bordershadow-xl p-8 text-center">
+            <div className="mb-4">
+              <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-900/30 text-amber-400 text-3xl">
+                ⚠️
+              </span>
+            </div>
+            <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Civic session required</h2>
+            <p className="text-gray-700 mb-6">Sign in with Civic to use the FHE Counter demo.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!isConnected) {
     return (
       <div className="max-w-6xl mx-auto p-6 text-gray-900">
@@ -99,10 +118,7 @@ export const FHECounterDemo = () => {
               </span>
             </div>
             <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Wallet not connected</h2>
-            <p className="text-gray-700 mb-6">Connect your wallet to use the FHE Counter demo.</p>
-            <div className="flex items-center justify-center">
-              <RainbowKitCustomConnectButton />
-            </div>
+            <p className="text-gray-700 mb-6">Link your wallet through your Civic profile to use the FHE Counter demo.</p>
           </div>
         </div>
       </div>

@@ -16,9 +16,11 @@
     "vercel:yolo": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true --build-env VERCEL_TELEMETRY_DISABLED=1"
   },
   "dependencies": {
+    "@civic/auth-web3": "^0.8.1",
     "@heroicons/react": "~2.1.5",
     "@rainbow-me/rainbowkit": "2.2.8",
     "@se-2/fhevm-sdk": "workspace:*",
+    "@solana/wallet-adapter-react": "^0.15.39",
     "@tanstack/react-query": "~5.59.15",
     "@uniswap/sdk-core": "~5.8.2",
     "@uniswap/v2-sdk": "~4.6.1",
