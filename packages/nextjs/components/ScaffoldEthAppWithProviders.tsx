@@ -7,6 +7,7 @@ import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
+import { InMemoryStorageProvider } from "@se-2/fhevm-sdk";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
@@ -48,13 +49,15 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          avatar={BlockieAvatar}
-          theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-        >
-          <ProgressBar height="3px" color="#2299dd" />
-          <ScaffoldEthApp>{children}</ScaffoldEthApp>
-        </RainbowKitProvider>
+        <InMemoryStorageProvider>
+          <RainbowKitProvider
+            avatar={BlockieAvatar}
+            theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
+          >
+            <ProgressBar height="3px" color="#2299dd" />
+            <ScaffoldEthApp>{children}</ScaffoldEthApp>
+          </RainbowKitProvider>
+        </InMemoryStorageProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
