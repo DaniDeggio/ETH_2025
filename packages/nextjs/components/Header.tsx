@@ -30,6 +30,14 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "FHE Counter Demo",
     href: "/test",
   },
+  {
+    label: "FHE Debt Registry",
+    href: "/debtregistry",
+  },
+  {
+    label: "Simple Storage",
+    href: "/simplestorage",
+  },
 ];
 
 export const HeaderMenuLinks = () => {

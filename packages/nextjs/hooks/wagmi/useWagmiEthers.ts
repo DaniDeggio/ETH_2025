@@ -61,6 +61,7 @@ export const useWagmiEthers = (initialMockChains?: Readonly<Record<number, strin
     chainId,
     accounts,
     isConnected,
+    walletClient,
     ethersProvider,
     ethersReadonlyProvider,
     ethersSigner,
