@@ -15,6 +15,7 @@ import { useAccount } from "wagmi";
 import { useDeployedContractInfo } from "~~/hooks/helper";
 import { useWagmiEthers } from "~~/hooks/wagmi/useWagmiEthers";
 import type { AllowedChainIds } from "~~/utils/scaffold-eth/networks";
+import { Address } from "~~/components/scaffold-eth";
 
 
 type DebtView = {
@@ -29,8 +30,19 @@ const initialMockChains = {
 	11155111: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ?? "https://rpc.sepolia.org",
 } as const;
 
+const toDateInputValue = (date: Date) => {
+	const iso = date.toISOString();
+	return iso.slice(0, 10);
+};
+
+const getDefaultDueDate = () => {
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+	return toDateInputValue(tomorrow);
+};
+
 export const FHEDebtRegistry = () => {
-	const { isConnected, chain } = useAccount();
+	const { isConnected, chain, address } = useAccount();
 	const { user } = useUser();
 
 	const provider = useMemo(() => {
@@ -66,10 +78,7 @@ export const FHEDebtRegistry = () => {
 	const [createRef, setCreateRef] = useState<string>("");
 	const [createCreditor, setCreateCreditor] = useState<string>("");
 	const [createAmount, setCreateAmount] = useState<string>("");
-	const [createDueDate, setCreateDueDate] = useState<string>(() => {
-		const defaultTs = Math.floor(Date.now() / 1000) + 86400;
-		return String(defaultTs);
-	});
+	const [createDueDate, setCreateDueDate] = useState<string>(() => getDefaultDueDate());
 
 	const [lookupRef, setLookupRef] = useState<string>("");
 	const [paymentAmount, setPaymentAmount] = useState<string>("");
@@ -212,13 +221,12 @@ export const FHEDebtRegistry = () => {
 		}
 		if (amount <= 0n) return setStatusMessage("Amount must be greater than zero");
 
+		if (!createDueDate) return setStatusMessage("Seleziona una data di scadenza valida");
+
 		let dueDate: bigint;
-		try {
-			dueDate = BigInt(Math.floor(Number(createDueDate)));
-		} catch {
-			return setStatusMessage("Due date must be a unix timestamp");
-		}
-		if (dueDate <= 0n) return setStatusMessage("Due date must be positive");
+		const parsedDueDate = Date.parse(`${createDueDate}T23:59:59Z`);
+		if (Number.isNaN(parsedDueDate)) return setStatusMessage("Data di scadenza non valida");
+		dueDate = BigInt(Math.floor(parsedDueDate / 1000));
 
 		const { method, error } = getEncryptionMethodFor("createDebt");
 		if (!method) return setStatusMessage(error ?? "Unable to resolve encryption method");
@@ -331,17 +339,23 @@ export const FHEDebtRegistry = () => {
 	]);
 
 	const buttonClass =
-		"inline-flex items-center justify-center px-6 py-3 font-semibold shadow-lg transition-all duration-200 hover:scale-105 " +
-		"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 " +
+		"relative inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition-all duration-200 " +
+		"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent " +
 		"disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed";
 
 	const primaryButtonClass =
-		buttonClass + " bg-[#FFD208] text-[#2D2D2D] hover:bg-[#A38025] focus-visible:ring-[#2D2D2D] cursor-pointer";
+		buttonClass +
+		" bg-gradient-to-r from-[#FFE864] via-[#FF9A64] to-[#FE6684] text-[#2A1A1A] shadow-[0_12px_24px_-12px_rgba(255,152,100,0.8)] " +
+		"hover:scale-[1.03] focus-visible:ring-[#ff8a65]";
 	const secondaryButtonClass =
-		buttonClass + " bg-black text-[#F4F4F4] hover:bg-[#1F1F1F] focus-visible:ring-[#FFD208] cursor-pointer";
+		buttonClass +
+		" bg-white/70 text-[#1F1F1F] shadow-[0_8px_20px_-10px_rgba(34,34,34,0.35)] backdrop-blur-md border border-white/40 " +
+		"hover:bg-white/90 focus-visible:ring-[#94a3b8]";
 
-	const titleClass = "font-bold text-gray-900 text-xl mb-4 border-b border-gray-300 pb-2";
-	const sectionClass = "bg-[#f4f4f4] shadow-lg p-6 mb-6 text-gray-900";
+	const titleClass = "flex items-center gap-3 text-gray-900 text-xl font-bold mb-6";
+	const sectionClass =
+		"rounded-2xl border border-white/40 bg-white/65 backdrop-blur-2xl p-8 text-gray-900 shadow-[0_30px_60px_-35px_rgba(30,64,175,0.45)]";
+	const todayIso = useMemo(() => toDateInputValue(new Date()), []);
 
 	if (!user) {
 		return (
@@ -380,89 +394,143 @@ export const FHEDebtRegistry = () => {
 	}
 
 	return (
-		<div className="max-w-6xl mx-auto p-6 space-y-6 text-gray-900">
-			<div className="text-center mb-8 text-black">
-				<h1 className="text-3xl font-bold mb-2">FHE Debt Registry</h1>
-				<p className="text-gray-600">Create debts, submit confidential repayments, and decrypt outstanding balance.</p>
-			</div>
-
-			<div className={sectionClass}>
-				<h3 className={titleClass}>🆕 Create Debt</h3>
-				<div className="grid gap-4 md:grid-cols-2">
-					<Field label="Debt Reference" value={createRef} onChange={setCreateRef} placeholder="invoice-123" />
-					<Field label="Creditor Address" value={createCreditor} onChange={setCreateCreditor} placeholder="0x..." />
-					<Field label="Amount (integer)" value={createAmount} onChange={setCreateAmount} placeholder="1000" />
-					<Field label="Due Date (unix seconds)" value={createDueDate} onChange={setCreateDueDate} />
-				</div>
-				<div className="mt-4 flex flex-wrap items-center gap-4">
-					<button
-						className={primaryButtonClass}
-						onClick={handleCreateDebt}
-						disabled={isSubmittingTx || !fhevmInstance || !debtRegistry?.address}
-					>
-						{isSubmittingTx ? "⏳ Processing..." : "📄 Create Debt"}
-					</button>
-					<span className="text-sm text-gray-700 break-all">
-						Derived Debt ID: {createDebtId ?? "(invalid reference)"}
-					</span>
-				</div>
-			</div>
-
-			<div className={sectionClass}>
-				<h3 className={titleClass}>🔍 Manage Debt</h3>
-				<div className="grid gap-4 md:grid-cols-2">
-					<Field label="Debt Reference" value={lookupRef} onChange={setLookupRef} placeholder="invoice-123" />
-					<Field label="Payment Amount" value={paymentAmount} onChange={setPaymentAmount} placeholder="250" />
-				</div>
-				<div className="mt-4 flex flex-wrap gap-4">
-					<button className={secondaryButtonClass} onClick={() => lookupDebtId && refreshDebt(lookupDebtId)} disabled={!lookupDebtId || isFetchingDebt}>
-						{isFetchingDebt ? "⏳ Fetching..." : "🔁 Fetch Debt"}
-					</button>
-					<button className={secondaryButtonClass} onClick={handlePayDebt} disabled={!lookupDebtId || isSubmittingTx}>
-						{isSubmittingTx ? "⏳ Processing..." : "💸 Submit Payment"}
-					</button>
-					<button className={secondaryButtonClass} onClick={decrypt} disabled={!canDecrypt || isDecrypting}>
-						{isDecrypting ? "⏳ Decrypting..." : "🔓 Decrypt Outstanding"}
-					</button>
-				</div>
-
-				{debtView && (
-					<div className="mt-6 border bg-white border-gray-200 p-4">
-						<div className="grid gap-3">
-							{printProperty("Debtor", debtView.debtor)}
-							{printProperty("Creditor", debtView.creditor)}
-							{printProperty("Due Date", `${debtView.dueDate} (${new Date(Number(debtView.dueDate) * 1000).toLocaleString()})`)}
-							{printBooleanProperty("Closed", debtView.closed)}
-							{printProperty("Encrypted Amount", outstandingHandle ?? "-")}
-							{printProperty(
-								"Decrypted Outstanding",
-								typeof decryptedOutstanding !== "undefined" ? decryptedOutstanding.toString() : "Not decrypted",
-							)}
-							{printProperty("Active Debt ID", activeDebtId ?? "-")}
-						</div>
-					</div>
-				)}
-			</div>
-
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-				<div className={sectionClass}>
-					<h3 className={titleClass}>📡 FHEVM Status</h3>
+		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-6xl flex-col gap-8 px-6 py-10 text-gray-900">
+			<div className="absolute inset-0 -z-10 overflow-hidden rounded-[36px] bg-gradient-to-br from-[#10172B] via-[#1B1F3B] to-[#441752] shadow-[0_40px_120px_-40px_rgba(17,24,39,0.8)]" />
+			<div className="absolute inset-0 -z-10 rounded-[36px] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_45%),_radial-gradient(circle_at_bottom,_rgba(255,174,94,0.18),_transparent_55%)]" />
+			<header className="relative rounded-3xl border border-white/30 bg-white/15 p-10 text-white shadow-[0_25px_60px_-20px_rgba(255,255,255,0.35)] backdrop-blur-2xl">
+				<div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 					<div className="space-y-3">
+						<span className="inline-flex items-center rounded-full bg-white/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
+							dApp Civic Ready
+						</span>
+						<h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">FHE Debt Registry</h1>
+						<p className="max-w-2xl text-base text-white/70">
+							Gestisci debiti e rimborsi con trasparenza verificabile e privacy cifrata end-to-end. Tutte le azioni passano dal tuo wallet Civic, con importi trattati dal contratto solo in forma omomorfica.
+						</p>
+					</div>
+					<div className="rounded-2xl border border-white/25 bg-white/10 px-6 py-4 text-sm">
+						<div className="text-white/60">Wallet connesso</div>
+						<div className="mt-3 rounded-xl border border-white/20 bg-black/30 p-3">
+							<Address address={isConnected ? address : undefined} />
+						</div>
+						<p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-white/50">Sessione Civic obbligatoria</p>
+					</div>
+				</div>
+			</header>
+
+			<section className="relative grid gap-8 lg:grid-cols-[1.2fr,1fr]">
+				<div className={sectionClass}>
+					<h3 className={titleClass}>
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFE864] to-[#FF8A65] text-2xl shadow-[0_12px_30px_-16px_rgba(255,153,102,0.8)]">
+							📄
+						</span>
+						<span>Nuovo debito</span>
+					</h3>
+					<p className="mb-6 text-sm text-gray-600">
+						Definisci un nuovo rapporto di debito specificando controparti, importo e scadenza. L&apos;importo viene cifrato lato client prima di raggiungere il contratto.
+					</p>
+					<div className="grid gap-5 md:grid-cols-2">
+						<Field label="Debt Reference" value={createRef} onChange={setCreateRef} placeholder="invoice-123" />
+						<Field label="Creditor Address" value={createCreditor} onChange={setCreateCreditor} placeholder="0x..." />
+						<Field label="Amount (integer)" value={createAmount} onChange={setCreateAmount} placeholder="1000" inputMode="numeric" />
+						<Field label="Due Date" value={createDueDate} onChange={setCreateDueDate} type="date" min={todayIso} />
+					</div>
+					<div className="mt-6 flex flex-wrap items-center gap-4">
+						<button
+							className={primaryButtonClass}
+							onClick={handleCreateDebt}
+							disabled={isSubmittingTx || !fhevmInstance || !debtRegistry?.address}
+						>
+							{isSubmittingTx ? "⏳ Processing..." : "Crea nuovo debito"}
+						</button>
+						<span className="rounded-full bg-black/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+							Debt ID {createDebtId ?? "pending"}
+						</span>
+					</div>
+				</div>
+
+				<div className={sectionClass}>
+					<h3 className={titleClass}>
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7DD3FC] to-[#6366F1] text-2xl text-white shadow-[0_12px_30px_-16px_rgba(99,102,241,0.7)]">
+							🔒
+						</span>
+						<span>Panoramica FHE</span>
+					</h3>
+					<div className="space-y-4 text-sm text-gray-600">
 						{printProperty("Instance", fhevmInstance ? "Connected" : "Not ready")}
 						{printProperty("Status", fhevmStatus)}
 						{printProperty("Error", fhevmError ?? "-")}
+						{printProperty("Can Decrypt", canDecrypt)}
 					</div>
+					<div className="mt-6 rounded-2xl border border-white/40 bg-white/45 p-4 text-xs text-gray-500 shadow-inner">
+						Le richieste di cifratura e decifratura vengono firmate con la chiave Civic attiva. Assicurati di approvare le richieste nel wallet.
+					</div>
+				</div>
+			</section>
+
+			<section className="relative grid gap-8 lg:grid-cols-[1fr,1fr]">
+				<div className={sectionClass}>
+					<h3 className={titleClass}>
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#34D399] to-[#10B981] text-2xl text-white shadow-[0_12px_30px_-16px_rgba(16,185,129,0.6)]">
+							💸
+						</span>
+						<span>Gestisci debito</span>
+					</h3>
+					<p className="mb-6 text-sm text-gray-600">
+						Ricerca un debito esistente, invia un rimborso confidenziale e richiedi la decifratura del saldo residuo.
+					</p>
+					<div className="grid gap-5 md:grid-cols-2">
+						<Field label="Debt Reference" value={lookupRef} onChange={setLookupRef} placeholder="invoice-123" />
+						<Field label="Payment Amount" value={paymentAmount} onChange={setPaymentAmount} placeholder="250" inputMode="numeric" />
+					</div>
+					<div className="mt-6 flex flex-wrap gap-4">
+						<button className={secondaryButtonClass} onClick={() => lookupDebtId && refreshDebt(lookupDebtId)} disabled={!lookupDebtId || isFetchingDebt}>
+							{isFetchingDebt ? "⏳ Fetching..." : "Aggiorna stato"}
+						</button>
+						<button className={secondaryButtonClass} onClick={handlePayDebt} disabled={!lookupDebtId || isSubmittingTx}>
+							{isSubmittingTx ? "⏳ Processing..." : "Invia rimborso"}
+						</button>
+						<button className={secondaryButtonClass} onClick={decrypt} disabled={!canDecrypt || isDecrypting}>
+							{isDecrypting ? "⏳ Decrypting..." : "Decifra saldo"}
+						</button>
+					</div>
+
+					{debtView && (
+						<div className="mt-8 rounded-2xl border border-white/40 bg-white/55 p-6 shadow-inner">
+							<h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-gray-500">Dettagli correnti</h4>
+							<div className="grid gap-3">
+								{printProperty("Debtor", debtView.debtor)}
+								{printProperty("Creditor", debtView.creditor)}
+								{printProperty("Due Date", `${debtView.dueDate} (${new Date(Number(debtView.dueDate) * 1000).toLocaleString()})`)}
+								{printBooleanProperty("Closed", debtView.closed)}
+								{printProperty("Encrypted Amount", outstandingHandle ?? "-")}
+								{printProperty(
+									"Decrypted Outstanding",
+									typeof decryptedOutstanding !== "undefined" ? decryptedOutstanding.toString() : "Not decrypted",
+								)}
+								{printProperty("Active Debt ID", activeDebtId ?? "-")}
+							</div>
+						</div>
+					)}
 				</div>
 
 				<div className={sectionClass}>
-					<h3 className={titleClass}>🧾 Activity</h3>
-					<div className="space-y-3">
+					<h3 className={titleClass}>
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FCA5A5] to-[#F97316] text-2xl text-white shadow-[0_12px_30px_-16px_rgba(249,115,22,0.6)]">
+							🧾
+						</span>
+						<span>Attività & log</span>
+					</h3>
+					<div className="space-y-4 text-sm text-gray-600">
 						{printProperty("Status Message", statusMessage || "-")}
 						{printProperty("Last TX", lastTxHash ?? "-")}
-						{printProperty("Can Decrypt", canDecrypt)}
+						{printProperty("Handle", outstandingHandle ?? "N/A")}
+					</div>
+					<div className="mt-6 rounded-2xl border border-white/40 bg-white/55 p-5 text-xs text-gray-500 shadow-inner">
+						Ogni transazione viene tracciata on-chain. Puoi aprire il Block Explorer per approfondire gas e conferme.
 					</div>
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 };
@@ -472,17 +540,27 @@ type FieldProps = {
 	value: string;
 	onChange: (value: string) => void;
 	placeholder?: string;
+	type?: string;
+	inputMode?: "text" | "decimal" | "numeric";
+	min?: string;
+	step?: string;
+	max?: string;
 };
 
-const Field = ({ label, value, onChange, placeholder }: FieldProps) => {
+const Field = ({ label, value, onChange, placeholder, type = "text", inputMode, min, step, max }: FieldProps) => {
 	return (
 		<label className="flex flex-col space-y-2 text-gray-900">
-			<span className="text-sm font-semibold">{label}</span>
+			<span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">{label}</span>
 			<input
-				className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FFD208] text-black"
+				className="rounded-xl border border-white/40 bg-white/70 px-3 py-3 text-base text-gray-900 shadow-[0_8px_18px_-12px_rgba(15,23,42,0.35)] transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#ff9a64]"
 				value={value}
 				onChange={event => onChange(event.target.value)}
 				placeholder={placeholder}
+				type={type}
+				inputMode={inputMode}
+				min={min}
+				step={step}
+				max={max}
 			/>
 		</label>
 	);
@@ -508,9 +586,9 @@ function printProperty(name: string, value: unknown) {
 	}
 
 	return (
-		<div className="flex justify-between items-center py-2 px-3 bg-white border border-gray-200 w-full">
-			<span className="text-gray-800 font-medium">{name}</span>
-			<span className="ml-2 font-mono text-sm font-semibold text-gray-900 bg-gray-100 px-2 py-1 border border-gray-300">
+		<div className="flex items-center justify-between rounded-xl border border-white/35 bg-white/70 px-4 py-3 text-sm text-gray-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.45)] backdrop-blur-sm">
+			<span className="font-semibold text-gray-600">{name}</span>
+			<span className="ml-2 rounded-md border border-white/40 bg-white/80 px-3 py-1 font-mono text-xs font-semibold text-gray-900">
 				{displayValue}
 			</span>
 		</div>
@@ -519,11 +597,13 @@ function printProperty(name: string, value: unknown) {
 
 function printBooleanProperty(name: string, value: boolean) {
 	return (
-		<div className="flex justify-between items-center py-2 px-3 bg-white border border-gray-200 w-full">
-			<span className="text-gray-700 font-medium">{name}</span>
+		<div className="flex items-center justify-between rounded-xl border border-white/35 bg-white/70 px-4 py-3 text-sm text-gray-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.45)] backdrop-blur-sm">
+			<span className="font-semibold text-gray-600">{name}</span>
 			<span
-				className={`font-mono text-sm font-semibold px-2 py-1 border ${
-					value ? "text-green-800 bg-green-100 border-green-300" : "text-red-800 bg-red-100 border-red-300"
+				className={`rounded-md border px-3 py-1 font-mono text-xs font-semibold ${
+					value
+						? "border-emerald-300/60 bg-emerald-100/70 text-emerald-700"
+						: "border-rose-300/60 bg-rose-100/70 text-rose-700"
 				}`}
 			>
 				{value ? "✓ true" : "✗ false"}
