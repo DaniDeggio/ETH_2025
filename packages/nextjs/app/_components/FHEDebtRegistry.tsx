@@ -71,6 +71,7 @@ export const FHEDebtRegistry = () => {
 
 	const allowedChainId = typeof wagmiChainId === "number" ? (wagmiChainId as AllowedChainIds) : undefined;
 	const { data: debtRegistry } = useDeployedContractInfo({ contractName: "DebtRegistry", chainId: allowedChainId });
+	const { data: confidentialToken } = useDeployedContractInfo({ contractName: "ConfidentialTokenExample", chainId: allowedChainId });
 
 	const [statusMessage, setStatusMessage] = useState<string>("");
 	const [lastTxHash, setLastTxHash] = useState<string | undefined>(undefined);
@@ -88,19 +89,30 @@ export const FHEDebtRegistry = () => {
 	const [isFetchingDebt, setIsFetchingDebt] = useState<boolean>(false);
 	const [isSubmittingTx, setIsSubmittingTx] = useState<boolean>(false);
 	const [outstandingHandle, setOutstandingHandle] = useState<`0x${string}` | undefined>(undefined);
+	const [walletBalanceHandle, setWalletBalanceHandle] = useState<`0x${string}` | undefined>(undefined);
+	const [isFetchingBalance, setIsFetchingBalance] = useState<boolean>(false);
 
 	const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
 
 	const decryptRequests = useMemo(() => {
-		if (!debtRegistry?.address || !outstandingHandle) return undefined;
-		if (outstandingHandle === ethers.ZeroHash) return undefined;
-		return [
-			{
+		const requests: Array<{ handle: `0x${string}`; contractAddress: `0x${string}` }> = [];
+
+		if (debtRegistry?.address && outstandingHandle && outstandingHandle !== ethers.ZeroHash) {
+			requests.push({
 				handle: outstandingHandle,
 				contractAddress: debtRegistry.address as `0x${string}`,
-			},
-		] as const;
-	}, [debtRegistry?.address, outstandingHandle]);
+			});
+		}
+
+		if (confidentialToken?.address && walletBalanceHandle && walletBalanceHandle !== ethers.ZeroHash) {
+			requests.push({
+				handle: walletBalanceHandle,
+				contractAddress: confidentialToken.address as `0x${string}`,
+			});
+		}
+
+		return requests.length ? (requests as any) : undefined;
+	}, [confidentialToken?.address, debtRegistry?.address, outstandingHandle, walletBalanceHandle]);
 
 	const {
 		canDecrypt,
@@ -108,6 +120,7 @@ export const FHEDebtRegistry = () => {
 		isDecrypting,
 		message: decryptMessage,
 		results: decryptResults,
+		error: decryptError,
 	} = useFHEDecrypt({
 		instance: fhevmInstance,
 		ethersSigner: ethersSigner as any,
@@ -120,11 +133,73 @@ export const FHEDebtRegistry = () => {
 		if (decryptMessage) setStatusMessage(decryptMessage);
 	}, [decryptMessage]);
 
+	useEffect(() => {
+		if (decryptError) {
+			console.error("decrypt error", decryptError);
+			setStatusMessage(decryptError);
+		}
+	}, [decryptError]);
+
 	const decryptedOutstanding = useMemo(() => {
 		if (!outstandingHandle) return undefined;
 		const clear = decryptResults[outstandingHandle];
 		return typeof clear === "undefined" ? undefined : clear;
 	}, [decryptResults, outstandingHandle]);
+
+	const decryptedWalletBalance = useMemo(() => {
+		if (!walletBalanceHandle) return undefined;
+		const clear = decryptResults[walletBalanceHandle];
+		return typeof clear === "undefined" ? undefined : clear;
+	}, [decryptResults, walletBalanceHandle]);
+
+	const walletBalanceDisplay = useMemo(() => {
+		if (!walletBalanceHandle) return "—";
+		if (walletBalanceHandle === ethers.ZeroHash) return "0";
+		if (typeof decryptedWalletBalance !== "undefined") return decryptedWalletBalance.toString();
+		return "🔐";
+	}, [decryptedWalletBalance, walletBalanceHandle]);
+
+	const showBalanceDecryptHint = useMemo(() => {
+		return (
+			!!walletBalanceHandle &&
+			walletBalanceHandle !== ethers.ZeroHash &&
+			typeof decryptedWalletBalance === "undefined"
+		);
+	}, [decryptedWalletBalance, walletBalanceHandle]);
+
+	const walletBalanceHandleDisplay = useMemo(() => {
+		if (!walletBalanceHandle) return "N/A";
+		if (walletBalanceHandle.length <= 18) return walletBalanceHandle;
+		return `${walletBalanceHandle.slice(0, 10)}…${walletBalanceHandle.slice(-6)}`;
+	}, [walletBalanceHandle]);
+
+		const refreshWalletBalance = useCallback(async () => {
+			if (!address) {
+				setWalletBalanceHandle(undefined);
+				return;
+			}
+			if (!confidentialToken?.address || !confidentialToken?.abi || !ethersReadonlyProvider) return;
+
+			setIsFetchingBalance(true);
+			try {
+				const tokenContract = new ethers.Contract(
+					confidentialToken.address as `0x${string}`,
+					confidentialToken.abi as any,
+					ethersReadonlyProvider,
+				);
+				const handle = (await tokenContract.confidentialBalanceOf(address)) as `0x${string}`;
+				setWalletBalanceHandle(handle);
+			} catch (err) {
+				console.error(err);
+				setStatusMessage(`Errore aggiornando saldo: ${err instanceof Error ? err.message : String(err)}`);
+			} finally {
+				setIsFetchingBalance(false);
+			}
+		}, [address, confidentialToken?.abi, confidentialToken?.address, ethersReadonlyProvider]);
+
+		useEffect(() => {
+			refreshWalletBalance();
+		}, [refreshWalletBalance]);
 
 	const { encryptWith } = useFHEEncryption({
 		instance: fhevmInstance,
@@ -223,10 +298,9 @@ export const FHEDebtRegistry = () => {
 
 		if (!createDueDate) return setStatusMessage("Seleziona una data di scadenza valida");
 
-		let dueDate: bigint;
 		const parsedDueDate = Date.parse(`${createDueDate}T23:59:59Z`);
 		if (Number.isNaN(parsedDueDate)) return setStatusMessage("Data di scadenza non valida");
-		dueDate = BigInt(Math.floor(parsedDueDate / 1000));
+		const dueDate = BigInt(Math.floor(parsedDueDate / 1000));
 
 		const { method, error } = getEncryptionMethodFor("createDebt");
 		if (!method) return setStatusMessage(error ?? "Unable to resolve encryption method");
@@ -257,6 +331,7 @@ export const FHEDebtRegistry = () => {
 
 			setLookupRef(createRef);
 			await refreshDebt(createDebtId);
+			await refreshWalletBalance();
 		} catch (err) {
 			console.error(err);
 			setStatusMessage(`createDebt failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -276,6 +351,7 @@ export const FHEDebtRegistry = () => {
 		fhevmInstance,
 		getEncryptionMethodFor,
 		refreshDebt,
+		refreshWalletBalance,
 	]);
 
 	const handlePayDebt = useCallback(async () => {
@@ -320,6 +396,7 @@ export const FHEDebtRegistry = () => {
 			setStatusMessage("Payment submitted");
 
 			await refreshDebt(lookupDebtId);
+			await refreshWalletBalance();
 		} catch (err) {
 			console.error(err);
 			setStatusMessage(`pay failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -336,6 +413,7 @@ export const FHEDebtRegistry = () => {
 		lookupDebtId,
 		paymentAmount,
 		refreshDebt,
+		refreshWalletBalance,
 	]);
 
 	const buttonClass =
@@ -351,6 +429,9 @@ export const FHEDebtRegistry = () => {
 		buttonClass +
 		" bg-white/70 text-[#1F1F1F] shadow-[0_8px_20px_-10px_rgba(34,34,34,0.35)] backdrop-blur-md border border-white/40 " +
 		"hover:bg-white/90 focus-visible:ring-[#94a3b8]";
+	const subtleButtonClass =
+		"inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 " +
+		"shadow-[0_4px_12px_-6px_rgba(15,23,42,0.45)] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#94a3b8]";
 
 	const titleClass = "flex items-center gap-3 text-gray-900 text-xl font-bold mb-6";
 	const sectionClass =
@@ -429,6 +510,46 @@ export const FHEDebtRegistry = () => {
 					<p className="mb-6 text-sm text-gray-600">
 						Definisci un nuovo rapporto di debito specificando controparti, importo e scadenza. L&apos;importo viene cifrato lato client prima di raggiungere il contratto.
 					</p>
+					<div className="mb-6 rounded-2xl border border-white/45 bg-white/75 p-5 shadow-[0_18px_36px_-24px_rgba(15,23,42,0.45)]">
+						<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+							<div>
+								<p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">Saldo ConfidentialToken</p>
+								<div className="mt-2 text-3xl font-extrabold text-gray-900">{walletBalanceDisplay}</div>
+								<p className="mt-2 text-xs text-gray-500">
+									Il saldo è custodito cifrato sul contratto. Puoi aggiornarlo e decifrarlo in ogni momento dal wallet Civic.
+								</p>
+							</div>
+							<span className="inline-flex items-center rounded-lg border border-white/40 bg-white/80 px-3 py-1 font-mono text-[11px] font-semibold text-gray-600">
+								{walletBalanceHandleDisplay}
+							</span>
+						</div>
+						<div className="mt-4 flex flex-wrap items-center gap-3">
+							<button
+								className={`${subtleButtonClass} px-4 py-2 text-sm`}
+								onClick={refreshWalletBalance}
+								disabled={isFetchingBalance || !confidentialToken?.address}
+							>
+								{isFetchingBalance ? "⏳ Aggiornamento..." : "Aggiorna saldo"}
+							</button>
+							<button
+								className={`${subtleButtonClass} px-4 py-2 text-sm`}
+								onClick={decrypt}
+								disabled={
+									!canDecrypt ||
+									isDecrypting ||
+									!walletBalanceHandle ||
+									walletBalanceHandle === ethers.ZeroHash
+								}
+							>
+								{isDecrypting ? "⏳ Decifrando..." : "Decifra importi"}
+							</button>
+							{showBalanceDecryptHint && (
+								<span className="text-xs font-semibold text-amber-600">
+									🔐 Approva la firma in Civic per leggere il valore chiaro.
+								</span>
+							)}
+						</div>
+					</div>
 					<div className="grid gap-5 md:grid-cols-2">
 						<Field label="Debt Reference" value={createRef} onChange={setCreateRef} placeholder="invoice-123" />
 						<Field label="Creditor Address" value={createCreditor} onChange={setCreateCreditor} placeholder="0x..." />
@@ -491,7 +612,7 @@ export const FHEDebtRegistry = () => {
 							{isSubmittingTx ? "⏳ Processing..." : "Invia rimborso"}
 						</button>
 						<button className={secondaryButtonClass} onClick={decrypt} disabled={!canDecrypt || isDecrypting}>
-							{isDecrypting ? "⏳ Decrypting..." : "Decifra saldo"}
+							{isDecrypting ? "⏳ Decrypting..." : "Decifra importi"}
 						</button>
 					</div>
 

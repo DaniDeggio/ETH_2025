@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {FHE, euint64, externalEuint64, ebool} from "@fhevm/solidity/lib/FHE.sol";
 import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
+import {ConfidentialFungibleToken} from "@openzeppelin/confidential-contracts/token/ConfidentialFungibleToken.sol";
 
 contract DebtRegistry is SepoliaConfig {
     struct Debt {
@@ -15,14 +16,33 @@ contract DebtRegistry is SepoliaConfig {
 
     /// @notice Raised when a decryption callback does not match an existing request
     error UnknownDecryptionRequest(uint256 requestId);
+    error InvalidTokenAddress();
+    error InvalidCreditor();
+    error DebtAlreadyExists();
+    error UnknownDebt();
+    error NotDebtor();
+    error DebtAlreadyClosed();
 
-    mapping(bytes32 => Debt) private debts;
-    mapping(uint256 => bytes32) private closeRequests;
-    mapping(uint256 => bool) private closeRequestExists;
+    ConfidentialFungibleToken public confidentialFungibleToken;
+
+    mapping(bytes32 id => Debt debtEntry) private debts;
+    mapping(uint256 requestId => bytes32 debtId) private closeRequests;
+    mapping(uint256 requestId => bool exists) private closeRequestExists;
 
     event DebtCreated(bytes32 indexed id, address indexed debtor, address indexed creditor, uint64 dueDate);
     event DebtPayment(bytes32 indexed id);
     event DebtClosed(bytes32 indexed id);
+
+    /// @notice Raised when the payment token has not authorized this registry as operator
+    error PaymentOperatorMissing();
+
+    /// @notice Raised when the payment token transfer fails
+    error PaymentTransferFailed(bytes lowLevelData);
+
+    constructor(address confidentialTokenAddress) {
+        if (confidentialTokenAddress == address(0)) revert InvalidTokenAddress();
+        confidentialFungibleToken = ConfidentialFungibleToken(confidentialTokenAddress);
+    }
 
     /// @notice Create a new encrypted debt position
     function createDebt(
@@ -32,10 +52,13 @@ contract DebtRegistry is SepoliaConfig {
         bytes calldata inputProof,
         uint64 dueDate
     ) external {
-        require(creditor != address(0), "invalid creditor");
-        require(debts[id].debtor == address(0), "exists");
+        if (creditor == address(0)) revert InvalidCreditor();
+        if (debts[id].debtor != address(0)) revert DebtAlreadyExists();
 
         euint64 amount = FHE.fromExternal(encAmount, inputProof);
+        FHE.allowThis(amount);
+        FHE.allow(amount, msg.sender);
+        FHE.allow(amount, creditor);
 
         Debt storage debtEntry = debts[id];
         debtEntry.debtor = msg.sender;
@@ -53,15 +76,31 @@ contract DebtRegistry is SepoliaConfig {
     /// @notice Register a confidential repayment towards a debt
     function pay(bytes32 id, externalEuint64 encPayment, bytes calldata inputProof) external {
         Debt storage debtEntry = debts[id];
-        require(debtEntry.debtor != address(0), "unknown debt");
-        require(msg.sender == debtEntry.debtor, "not debtor");
-        require(!debtEntry.closed, "closed");
+        if (debtEntry.debtor == address(0)) revert UnknownDebt();
+        if (msg.sender != debtEntry.debtor) revert NotDebtor();
+        if (debtEntry.closed) revert DebtAlreadyClosed();
 
-        euint64 payment = FHE.fromExternal(encPayment, inputProof);
+        if (!confidentialFungibleToken.isOperator(msg.sender, address(this))) revert PaymentOperatorMissing();
+
+        euint64 paymentAmount = FHE.fromExternal(encPayment, inputProof);
+        FHE.allowThis(paymentAmount);
+        FHE.allow(paymentAmount, msg.sender);
+        FHE.allowTransient(paymentAmount, address(confidentialFungibleToken));
+
+        euint64 transferred;
+        try confidentialFungibleToken.confidentialTransferFrom(msg.sender, debtEntry.creditor, paymentAmount) returns (
+            euint64 moved
+        ) {
+            transferred = moved;
+        } catch (bytes memory lowLevelData) {
+            revert PaymentTransferFailed(lowLevelData);
+        }
+
+        FHE.allowThis(transferred);
         euint64 zero = FHE.asEuint64(0);
 
-        euint64 rawRemaining = FHE.sub(debtEntry.amountEnc, payment);
-        ebool overPayment = FHE.lt(debtEntry.amountEnc, payment);
+        euint64 rawRemaining = FHE.sub(debtEntry.amountEnc, transferred);
+        ebool overPayment = FHE.lt(debtEntry.amountEnc, transferred);
         euint64 remaining = FHE.select(overPayment, zero, rawRemaining);
 
         debtEntry.amountEnc = remaining;

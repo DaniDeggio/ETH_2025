@@ -22,21 +22,8 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "Debug Contracts",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
-  },
-  {
-    label: "FHE Counter Demo",
-    href: "/test",
-  },
-  {
     label: "FHE Debt Registry",
     href: "/debtregistry",
-  },
-  {
-    label: "Simple Storage",
-    href: "/simplestorage",
   },
 ];
 
