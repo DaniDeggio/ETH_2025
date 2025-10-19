@@ -16,9 +16,11 @@
     "vercel:yolo": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true --build-env VERCEL_TELEMETRY_DISABLED=1"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.52",
     "@civic/auth": "^0.11.4",
     "@civic/auth-web3": "^0.8.1",
     "@heroicons/react": "~2.1.5",
+    "@modelcontextprotocol/sdk": "^1.18.2",
     "@rainbow-me/rainbowkit": "2.2.8",
     "@se-2/fhevm-sdk": "workspace:*",
     "@solana/wallet-adapter-react": "^0.15.39",
@@ -26,6 +28,7 @@
     "@uniswap/sdk-core": "~5.8.2",
     "@uniswap/v2-sdk": "~4.6.1",
     "@zama-fhe/relayer-sdk": "0.1.2",
+    "ai": "^5.0.76",
     "blo": "~1.2.0",
     "burner-connector": "0.0.18",
     "daisyui": "5.0.9",

@@ -440,7 +440,7 @@ export const FHEDebtRegistry = () => {
 
 	if (!user) {
 		return (
-			<div className="max-w-7xl mx-auto p-6 text-sky-950">
+			<div className="max-w-[92rem] mx-auto p-6 text-sky-950">
 				<div className="flex items-center justify-center">
 					<div className="rounded-3xl border border-sky-200/60 bg-sky-50/90 p-8 text-center shadow-[0_25px_50px_-20px_rgba(14,116,144,0.35)]">
 						<div className="mb-4">
@@ -458,7 +458,7 @@ export const FHEDebtRegistry = () => {
 
 	if (!isConnected) {
 		return (
-			<div className="max-w-7xl mx-auto p-6 text-sky-950">
+			<div className="max-w-[92rem] mx-auto p-6 text-sky-950">
 				<div className="flex items-center justify-center">
 					<div className="rounded-3xl border border-sky-200/60 bg-sky-50/90 p-8 text-center shadow-[0_25px_50px_-20px_rgba(14,116,144,0.35)]">
 						<div className="mb-4">
@@ -475,7 +475,7 @@ export const FHEDebtRegistry = () => {
 	}
 
 	return (
-		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-7xl flex-col gap-8 px-8 py-10 text-sky-950">
+		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-[92rem] flex-col gap-8 px-8 py-10 text-sky-950">
 			<div className="absolute inset-0 -z-10 overflow-hidden rounded-[36px] bg-gradient-to-br from-sky-100 via-sky-200 to-sky-300 shadow-[0_40px_120px_-40px_rgba(14,165,233,0.4)]" />
 			<div className="absolute inset-0 -z-10 rounded-[36px] bg-[radial-gradient(circle_at_top,_rgba(186,230,253,0.45),_transparent_48%),_radial-gradient(circle_at_bottom,_rgba(125,211,252,0.35),_transparent_60%)]" />
 			<header className="relative rounded-3xl border border-sky-200/60 bg-sky-50/90 p-10 text-sky-900 shadow-[0_25px_60px_-20px_rgba(14,165,233,0.25)] backdrop-blur-xl">

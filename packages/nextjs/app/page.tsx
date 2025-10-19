@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { useAccount } from "wagmi";
 import { CheckCircleIcon, LockClosedIcon, RocketLaunchIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
+import { NexusChat } from "./_components/NexusChat";
 
 const Home: NextPage = () => {
   const { address, isConnected } = useAccount();
@@ -48,6 +49,7 @@ const Home: NextPage = () => {
             <p className="text-lg text-sky-100/80">
               DebtRegistry combina smart contract Ethereum e crittografia Fully Homomorphic per tenere traccia dei debiti,
               creare rimborsi protetti e verificare i saldi senza esporre le informazioni sensibili.
+              Con NexusChat puoi coordinarti con le controparti in modo sicuro e immediato.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
@@ -97,6 +99,10 @@ const Home: NextPage = () => {
               Una volta dentro il Debt Registry i tuoi dati saranno al sicuro, crittografati e accessibili solo a te e alle controparti autorizzate.
             </p>
           </div>
+        </section>
+
+        <section className="flex justify-center">
+          <NexusChat />
         </section>
 
         <section className="rounded-3xl border border-sky-300/60 bg-gradient-to-r from-sky-500 via-sky-600 to-sky-700 p-10 shadow-xl">
