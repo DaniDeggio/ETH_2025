@@ -423,33 +423,33 @@ export const FHEDebtRegistry = () => {
 
 	const primaryButtonClass =
 		buttonClass +
-		" bg-gradient-to-r from-[#FFE864] via-[#FF9A64] to-[#FE6684] text-[#2A1A1A] shadow-[0_12px_24px_-12px_rgba(255,152,100,0.8)] " +
-		"hover:scale-[1.03] focus-visible:ring-[#ff8a65]";
+		" bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 text-sky-950 shadow-[0_12px_24px_-12px_rgba(56,189,248,0.75)] " +
+		"hover:scale-[1.03] focus-visible:ring-sky-200";
 	const secondaryButtonClass =
 		buttonClass +
-		" bg-white/70 text-[#1F1F1F] shadow-[0_8px_20px_-10px_rgba(34,34,34,0.35)] backdrop-blur-md border border-white/40 " +
-		"hover:bg-white/90 focus-visible:ring-[#94a3b8]";
+		" border border-sky-100/60 bg-sky-50/80 text-sky-900 shadow-[0_8px_20px_-10px_rgba(12,74,110,0.25)] backdrop-blur-md " +
+		"hover:bg-sky-50 focus-visible:ring-sky-200";
 	const subtleButtonClass =
-		"inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 " +
-		"shadow-[0_4px_12px_-6px_rgba(15,23,42,0.45)] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#94a3b8]";
+		"inline-flex items-center justify-center rounded-lg border border-sky-100/60 bg-sky-50/80 px-3 py-1 text-xs font-semibold text-sky-800 " +
+		"shadow-[0_4px_12px_-6px_rgba(12,74,110,0.35)] transition hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200";
 
-	const titleClass = "flex items-center gap-3 text-gray-900 text-xl font-bold mb-6";
+	const titleClass = "mb-6 flex items-center gap-3 text-xl font-bold text-sky-950";
 	const sectionClass =
-		"rounded-2xl border border-white/40 bg-white/65 backdrop-blur-2xl p-8 text-gray-900 shadow-[0_30px_60px_-35px_rgba(30,64,175,0.45)]";
+		"rounded-2xl border border-sky-100/40 bg-sky-50/80 p-8 text-sky-900 shadow-[0_30px_60px_-35px_rgba(7,89,133,0.45)] backdrop-blur-2xl";
 	const todayIso = useMemo(() => toDateInputValue(new Date()), []);
 
 	if (!user) {
 		return (
-			<div className="max-w-6xl mx-auto p-6 text-gray-900">
+			<div className="max-w-6xl mx-auto p-6 text-sky-950">
 				<div className="flex items-center justify-center">
-					<div className="bg-white shadow-xl p-8 text-center">
+					<div className="rounded-3xl border border-sky-200/60 bg-sky-50/90 p-8 text-center shadow-[0_25px_50px_-20px_rgba(14,116,144,0.35)]">
 						<div className="mb-4">
-							<span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-900/30 text-amber-400 text-3xl">
+							<span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-sky-200/60 text-3xl text-sky-900">
 								⚠️
 							</span>
 						</div>
-						<h2 className="text-2xl font-extrabold text-gray-900 mb-2">Civic session required</h2>
-						<p className="text-gray-700 mb-6">Sign in with Civic to use the FHE Debt Registry demo.</p>
+						<h2 className="mb-2 text-2xl font-extrabold text-sky-950">Civic session required</h2>
+						<p className="text-sky-900/70">Sign in with Civic to use the FHE Debt Registry demo.</p>
 					</div>
 				</div>
 			</div>
@@ -458,16 +458,16 @@ export const FHEDebtRegistry = () => {
 
 	if (!isConnected) {
 		return (
-			<div className="max-w-6xl mx-auto p-6 text-gray-900">
+			<div className="max-w-6xl mx-auto p-6 text-sky-950">
 				<div className="flex items-center justify-center">
-					<div className="bg-white shadow-xl p-8 text-center">
+					<div className="rounded-3xl border border-sky-200/60 bg-sky-50/90 p-8 text-center shadow-[0_25px_50px_-20px_rgba(14,116,144,0.35)]">
 						<div className="mb-4">
-							<span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-900/30 text-amber-400 text-3xl">
+							<span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-sky-200/60 text-3xl text-sky-900">
 								⚠️
 							</span>
 						</div>
-						<h2 className="text-2xl font-extrabold text-gray-900 mb-2">Wallet not connected</h2>
-						<p className="text-gray-700 mb-6">Connect your wallet through Civic to interact with the Debt Registry.</p>
+						<h2 className="mb-2 text-2xl font-extrabold text-sky-950">Wallet not connected</h2>
+						<p className="text-sky-900/70">Connect your wallet through Civic to interact with the Debt Registry.</p>
 					</div>
 				</div>
 			</div>
@@ -475,26 +475,26 @@ export const FHEDebtRegistry = () => {
 	}
 
 	return (
-		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-6xl flex-col gap-8 px-6 py-10 text-gray-900">
-			<div className="absolute inset-0 -z-10 overflow-hidden rounded-[36px] bg-gradient-to-br from-[#10172B] via-[#1B1F3B] to-[#441752] shadow-[0_40px_120px_-40px_rgba(17,24,39,0.8)]" />
-			<div className="absolute inset-0 -z-10 rounded-[36px] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_45%),_radial-gradient(circle_at_bottom,_rgba(255,174,94,0.18),_transparent_55%)]" />
-			<header className="relative rounded-3xl border border-white/30 bg-white/15 p-10 text-white shadow-[0_25px_60px_-20px_rgba(255,255,255,0.35)] backdrop-blur-2xl">
+		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-6xl flex-col gap-8 px-6 py-10 text-sky-950">
+			<div className="absolute inset-0 -z-10 overflow-hidden rounded-[36px] bg-gradient-to-br from-sky-950 via-sky-900 to-sky-800 shadow-[0_40px_120px_-40px_rgba(7,89,133,0.8)]" />
+			<div className="absolute inset-0 -z-10 rounded-[36px] bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.25),_transparent_45%),_radial-gradient(circle_at_bottom,_rgba(56,189,248,0.2),_transparent_55%)]" />
+			<header className="relative rounded-3xl border border-sky-100/30 bg-sky-900/20 p-10 text-sky-50 shadow-[0_25px_60px_-20px_rgba(56,189,248,0.35)] backdrop-blur-2xl">
 				<div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 					<div className="space-y-3">
-						<span className="inline-flex items-center rounded-full bg-white/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
+						<span className="inline-flex items-center rounded-full bg-sky-100/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
 							dApp Civic Ready
 						</span>
-						<h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">FHE Debt Registry</h1>
-						<p className="max-w-2xl text-base text-white/70">
+						<h1 className="text-4xl font-semibold tracking-tight text-sky-50 sm:text-5xl">FHE Debt Registry</h1>
+						<p className="max-w-2xl text-base text-sky-100/70">
 							Gestisci debiti e rimborsi con trasparenza verificabile e privacy cifrata end-to-end. Tutte le azioni passano dal tuo wallet Civic, con importi trattati dal contratto solo in forma omomorfica.
 						</p>
 					</div>
-					<div className="rounded-2xl border border-white/25 bg-white/10 px-6 py-4 text-sm">
-						<div className="text-white/60">Wallet connesso</div>
-						<div className="mt-3 rounded-xl border border-white/20 bg-black/30 p-3">
+					<div className="rounded-2xl border border-sky-100/25 bg-sky-900/30 px-6 py-4 text-sm">
+						<div className="text-sky-100/70">Wallet connesso</div>
+						<div className="mt-3 rounded-xl border border-sky-100/20 bg-sky-950/40 p-3 text-sky-100">
 							<Address address={isConnected ? address : undefined} />
 						</div>
-						<p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-white/50">Sessione Civic obbligatoria</p>
+						<p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-sky-100/60">Sessione Civic obbligatoria</p>
 					</div>
 				</div>
 			</header>
@@ -502,24 +502,24 @@ export const FHEDebtRegistry = () => {
 			<section className="relative grid gap-8 lg:grid-cols-[1.2fr,1fr]">
 				<div className={sectionClass}>
 					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFE864] to-[#FF8A65] text-2xl shadow-[0_12px_30px_-16px_rgba(255,153,102,0.8)]">
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
 							📄
 						</span>
 						<span>Nuovo debito</span>
 					</h3>
-					<p className="mb-6 text-sm text-gray-600">
+					<p className="mb-6 text-sm text-sky-900/70">
 						Definisci un nuovo rapporto di debito specificando controparti, importo e scadenza. L&apos;importo viene cifrato lato client prima di raggiungere il contratto.
 					</p>
-					<div className="mb-6 rounded-2xl border border-white/45 bg-white/75 p-5 shadow-[0_18px_36px_-24px_rgba(15,23,42,0.45)]">
+					<div className="mb-6 rounded-2xl border border-sky-100/50 bg-sky-50/85 p-5 shadow-[0_18px_36px_-24px_rgba(7,89,133,0.35)]">
 						<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 							<div>
-								<p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">Saldo ConfidentialToken</p>
-								<div className="mt-2 text-3xl font-extrabold text-gray-900">{walletBalanceDisplay}</div>
-								<p className="mt-2 text-xs text-gray-500">
+								<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-800">Saldo ConfidentialToken</p>
+								<div className="mt-2 text-3xl font-extrabold text-sky-950">{walletBalanceDisplay}</div>
+								<p className="mt-2 text-xs text-sky-800/80">
 									Il saldo è custodito cifrato sul contratto. Puoi aggiornarlo e decifrarlo in ogni momento dal wallet Civic.
 								</p>
 							</div>
-							<span className="inline-flex items-center rounded-lg border border-white/40 bg-white/80 px-3 py-1 font-mono text-[11px] font-semibold text-gray-600">
+							<span className="inline-flex items-center rounded-lg border border-sky-100/50 bg-sky-50/80 px-3 py-1 font-mono text-[11px] font-semibold text-sky-800">
 								{walletBalanceHandleDisplay}
 							</span>
 						</div>
@@ -544,7 +544,7 @@ export const FHEDebtRegistry = () => {
 								{isDecrypting ? "⏳ Decifrando..." : "Decifra importi"}
 							</button>
 							{showBalanceDecryptHint && (
-								<span className="text-xs font-semibold text-amber-600">
+								<span className="text-xs font-semibold text-sky-800">
 									🔐 Approva la firma in Civic per leggere il valore chiaro.
 								</span>
 							)}
@@ -564,7 +564,7 @@ export const FHEDebtRegistry = () => {
 						>
 							{isSubmittingTx ? "⏳ Processing..." : "Crea nuovo debito"}
 						</button>
-						<span className="rounded-full bg-black/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+						<span className="rounded-full bg-sky-900/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
 							Debt ID {createDebtId ?? "pending"}
 						</span>
 					</div>
@@ -572,18 +572,18 @@ export const FHEDebtRegistry = () => {
 
 				<div className={sectionClass}>
 					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7DD3FC] to-[#6366F1] text-2xl text-white shadow-[0_12px_30px_-16px_rgba(99,102,241,0.7)]">
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 text-2xl text-sky-50 shadow-[0_12px_30px_-16px_rgba(37,99,235,0.55)]">
 							🔒
 						</span>
 						<span>Panoramica FHE</span>
 					</h3>
-					<div className="space-y-4 text-sm text-gray-600">
+					<div className="space-y-4 text-sm text-sky-900/70">
 						{printProperty("Instance", fhevmInstance ? "Connected" : "Not ready")}
 						{printProperty("Status", fhevmStatus)}
 						{printProperty("Error", fhevmError ?? "-")}
 						{printProperty("Can Decrypt", canDecrypt)}
 					</div>
-					<div className="mt-6 rounded-2xl border border-white/40 bg-white/45 p-4 text-xs text-gray-500 shadow-inner">
+					<div className="mt-6 rounded-2xl border border-sky-100/50 bg-sky-50/70 p-4 text-xs text-sky-900/70 shadow-inner">
 						Le richieste di cifratura e decifratura vengono firmate con la chiave Civic attiva. Assicurati di approvare le richieste nel wallet.
 					</div>
 				</div>
@@ -592,12 +592,12 @@ export const FHEDebtRegistry = () => {
 			<section className="relative grid gap-8 lg:grid-cols-[1fr,1fr]">
 				<div className={sectionClass}>
 					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#34D399] to-[#10B981] text-2xl text-white shadow-[0_12px_30px_-16px_rgba(16,185,129,0.6)]">
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
 							💸
 						</span>
 						<span>Gestisci debito</span>
 					</h3>
-					<p className="mb-6 text-sm text-gray-600">
+					<p className="mb-6 text-sm text-sky-900/70">
 						Ricerca un debito esistente, invia un rimborso confidenziale e richiedi la decifratura del saldo residuo.
 					</p>
 					<div className="grid gap-5 md:grid-cols-2">
@@ -617,8 +617,8 @@ export const FHEDebtRegistry = () => {
 					</div>
 
 					{debtView && (
-						<div className="mt-8 rounded-2xl border border-white/40 bg-white/55 p-6 shadow-inner">
-							<h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-gray-500">Dettagli correnti</h4>
+						<div className="mt-8 rounded-2xl border border-sky-100/45 bg-sky-50/70 p-6 shadow-inner">
+							<h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-sky-800">Dettagli correnti</h4>
 							<div className="grid gap-3">
 								{printProperty("Debtor", debtView.debtor)}
 								{printProperty("Creditor", debtView.creditor)}
@@ -637,17 +637,17 @@ export const FHEDebtRegistry = () => {
 
 				<div className={sectionClass}>
 					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FCA5A5] to-[#F97316] text-2xl text-white shadow-[0_12px_30px_-16px_rgba(249,115,22,0.6)]">
+						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-indigo-500 text-2xl text-sky-50 shadow-[0_12px_30px_-16px_rgba(37,99,235,0.55)]">
 							🧾
 						</span>
 						<span>Attività & log</span>
 					</h3>
-					<div className="space-y-4 text-sm text-gray-600">
+					<div className="space-y-4 text-sm text-sky-900/70">
 						{printProperty("Status Message", statusMessage || "-")}
 						{printProperty("Last TX", lastTxHash ?? "-")}
 						{printProperty("Handle", outstandingHandle ?? "N/A")}
 					</div>
-					<div className="mt-6 rounded-2xl border border-white/40 bg-white/55 p-5 text-xs text-gray-500 shadow-inner">
+					<div className="mt-6 rounded-2xl border border-sky-100/45 bg-sky-50/70 p-5 text-xs text-sky-900/70 shadow-inner">
 						Ogni transazione viene tracciata on-chain. Puoi aprire il Block Explorer per approfondire gas e conferme.
 					</div>
 				</div>
@@ -670,10 +670,10 @@ type FieldProps = {
 
 const Field = ({ label, value, onChange, placeholder, type = "text", inputMode, min, step, max }: FieldProps) => {
 	return (
-		<label className="flex flex-col space-y-2 text-gray-900">
-			<span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">{label}</span>
+		<label className="flex flex-col space-y-2 text-sky-950">
+			<span className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800">{label}</span>
 			<input
-				className="rounded-xl border border-white/40 bg-white/70 px-3 py-3 text-base text-gray-900 shadow-[0_8px_18px_-12px_rgba(15,23,42,0.35)] transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#ff9a64]"
+				className="rounded-xl border border-sky-100/60 bg-sky-50/80 px-3 py-3 text-base text-sky-950 shadow-[0_8px_18px_-12px_rgba(7,89,133,0.35)] transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-200"
 				value={value}
 				onChange={event => onChange(event.target.value)}
 				placeholder={placeholder}
@@ -707,9 +707,9 @@ function printProperty(name: string, value: unknown) {
 	}
 
 	return (
-		<div className="flex items-center justify-between rounded-xl border border-white/35 bg-white/70 px-4 py-3 text-sm text-gray-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.45)] backdrop-blur-sm">
-			<span className="font-semibold text-gray-600">{name}</span>
-			<span className="ml-2 rounded-md border border-white/40 bg-white/80 px-3 py-1 font-mono text-xs font-semibold text-gray-900">
+		<div className="flex items-center justify-between rounded-xl border border-sky-100/45 bg-sky-50/80 px-4 py-3 text-sm text-sky-900/80 shadow-[0_10px_24px_-18px_rgba(7,89,133,0.35)] backdrop-blur-sm">
+			<span className="font-semibold text-sky-800">{name}</span>
+			<span className="ml-2 rounded-md border border-sky-100/50 bg-sky-50/90 px-3 py-1 font-mono text-xs font-semibold text-sky-950">
 				{displayValue}
 			</span>
 		</div>
@@ -718,12 +718,12 @@ function printProperty(name: string, value: unknown) {
 
 function printBooleanProperty(name: string, value: boolean) {
 	return (
-		<div className="flex items-center justify-between rounded-xl border border-white/35 bg-white/70 px-4 py-3 text-sm text-gray-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.45)] backdrop-blur-sm">
-			<span className="font-semibold text-gray-600">{name}</span>
+		<div className="flex items-center justify-between rounded-xl border border-sky-100/45 bg-sky-50/80 px-4 py-3 text-sm text-sky-900/80 shadow-[0_10px_24px_-18px_rgba(7,89,133,0.35)] backdrop-blur-sm">
+			<span className="font-semibold text-sky-800">{name}</span>
 			<span
 				className={`rounded-md border px-3 py-1 font-mono text-xs font-semibold ${
 					value
-						? "border-emerald-300/60 bg-emerald-100/70 text-emerald-700"
+						? "border-sky-300/60 bg-sky-100/80 text-sky-700"
 						: "border-rose-300/60 bg-rose-100/70 text-rose-700"
 				}`}
 			>

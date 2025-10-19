@@ -15,19 +15,19 @@ const Home: NextPage = () => {
       {
         title: "1. Accedi con Civic",
         description:
-          "Autenticati con il wallet Civic per creare una sessione sicura e cifrata.",
+          "Autenticati con Civic per un accesso rapido e sicuro.",
         icon: CheckCircleIcon,
       },
       {
         title: "2. Registra il debito",
         description:
-          "Inserisci importo, scadenza e controparte: il contratto DebtRegistry cifra e memorizza i dati on-chain.",
+          "Inserisci importo, scadenza e controparte: il contratto cifra in maniera sicura e memorizza i dati on-chain.",
         icon: LockClosedIcon,
       },
       {
-        title: "3. Ripaga in privacy",
+        title: "3. Ripaga confidenzialmente con Zama",
         description:
-          "Invia rimborsi confidenziali con FHE: solo le parti coinvolte possono decifrare il saldo residuo.",
+          "Invia rimborsi confidenziali grazie a Zama: solo le parti coinvolte possono decifrare il saldo residuo.",
         icon: RocketLaunchIcon,
       },
     ],
@@ -35,68 +35,62 @@ const Home: NextPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-base-100 via-base-200 to-base-300">
+    <div className="min-h-screen bg-gradient-to-b from-sky-500 via-sky-600 to-sky-700">
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 pb-20 pt-16">
         <div className="grid gap-12 lg:grid-cols-[2fr,1fr] lg:items-center">
           <div className="space-y-6 text-left">
-            <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
+            <span className="inline-flex items-center rounded-full bg-sky-100/20 px-4 py-1 text-sm font-semibold text-sky-50">
               Loan Management 3.0
             </span>
-            <h1 className="text-4xl font-bold leading-tight md:text-5xl">
+            <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl">
               Gestisci prestiti e debiti con privacy garantita da FHE
             </h1>
-            <p className="text-lg text-base-content/80">
+            <p className="text-lg text-sky-100/80">
               DebtRegistry combina smart contract Ethereum e crittografia Fully Homomorphic per tenere traccia dei debiti,
               creare rimborsi protetti e verificare i saldi senza esporre le informazioni sensibili.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href="/debtregistry"
-                className="rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-content shadow-lg transition hover:scale-105 hover:bg-primary-focus"
+                className="rounded-md bg-sky-200 px-6 py-3 text-base font-semibold text-sky-900 shadow-lg transition hover:scale-105 hover:bg-sky-300"
               >
                 Apri il Debt Registry
               </Link>
-              <Link
-                href="/debug"
-                className="rounded-md border border-primary px-6 py-3 text-base font-semibold text-primary transition hover:scale-105 hover:bg-primary/10"
-              >
-                Esplora lo smart contract
-              </Link>
             </div>
           </div>
-          <div className="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-xl">
-            <h2 className="text-lg font-semibold text-base-content">Stato connessione</h2>
-            <p className="mt-3 text-sm text-base-content/70">
-              Accedi con Civic e collega il wallet supportato per iniziare a registrare i tuoi debiti.
+          <div className="rounded-3xl border border-sky-200 bg-sky-50/80 p-6 shadow-xl backdrop-blur-sm">
+            <h2 className="text-lg font-semibold text-sky-900">Stato connessione</h2>
+            <p className="mt-3 text-sm text-sky-600">
+              Accedi con Civic e collega il wallet supportato per iniziare a gestire i tuoi debiti.
             </p>
-            <div className="mt-6 rounded-xl border border-dashed border-base-200 bg-base-200/60 p-4 text-sm">
-              <span className="font-medium text-base-content/70">Wallet collegato:</span>
+            <div className="mt-6 rounded-xl border border-dashed border-sky-200 bg-sky-100/70 p-4 text-sm">
+              <span className="font-medium text-sky-700">Wallet collegato:</span>
               <div className="mt-2">
                 <Address address={isConnected ? address : undefined} />
               </div>
             </div>
-            <p className="mt-6 text-xs text-base-content/60">
+            <p className="mt-6 text-xs text-sky-500">
               Il wallet Civic fornisce l&apos;identità verificata: le interazioni con DebtRegistry richiedono una sessione attiva.
             </p>
           </div>
         </div>
 
-        <section className="grid gap-6 rounded-3xl bg-base-100 p-10 shadow-xl lg:grid-cols-3">
+        <section className="grid gap-6 rounded-3xl border border-sky-200 bg-sky-50/80 p-10 shadow-xl lg:grid-cols-3">
           {steps.map(step => (
-            <article key={step.title} className="flex flex-col gap-4 rounded-2xl border border-base-200 p-6">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <article key={step.title} className="flex flex-col gap-4 rounded-2xl border border-sky-200 bg-sky-100/70 p-6">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-sky-200/80 text-sky-700">
                 <step.icon className="h-6 w-6" />
               </span>
-              <h3 className="text-xl font-semibold text-base-content">{step.title}</h3>
-              <p className="text-sm text-base-content/70">{step.description}</p>
+              <h3 className="text-xl font-semibold text-sky-900">{step.title}</h3>
+              <p className="text-sm text-sky-600">{step.description}</p>
             </article>
           ))}
         </section>
 
         <section className="grid gap-8 lg:grid-cols-2">
-          <div className="rounded-3xl border border-base-200 bg-base-100 p-8 shadow-lg">
-            <h3 className="text-2xl font-semibold text-base-content">Cosa puoi fare</h3>
-            <ul className="mt-4 space-y-3 text-base text-base-content/80">
+          <div className="rounded-3xl border border-sky-200 bg-sky-50/90 p-8 shadow-lg backdrop-blur-sm">
+            <h3 className="text-2xl font-semibold text-sky-900">Cosa puoi fare</h3>
+            <ul className="mt-4 space-y-3 text-base text-sky-600">
               <li>
                 • Dichiarare un debito verso un qualsiasi address Ethereum in modo verificabile e cifrato.
               </li>
@@ -108,29 +102,29 @@ const Home: NextPage = () => {
               </li>
             </ul>
           </div>
-          <div className="rounded-3xl border border-base-200 bg-base-100 p-8 shadow-lg">
-            <h3 className="text-2xl font-semibold text-base-content">Perché Civic + FHE</h3>
-            <p className="mt-4 text-base text-base-content/80">
-              Civic autentica l&apos;identità dell&apos;utente e garantisce sessioni affidabili. La componente Fully Homomorphic Encryption
+          <div className="rounded-3xl border border-sky-200 bg-sky-50/90 p-8 shadow-lg backdrop-blur-sm">
+            <h3 className="text-2xl font-semibold text-sky-900">Perché Civic + Zama</h3>
+            <p className="mt-4 text-base text-sky-600">
+              Civic autentica l&apos;identità dell&apos;utente e garantisce sessioni affidabili. La componente Fully Homomorphic Encryption di Zama
               delinea un flusso in cui il contratto smart elabora importi cifrati, impedendo a terzi di leggere i dati sensibili.
             </p>
-            <p className="mt-4 text-sm text-base-content/60">
-              Una volta dentro il Debt Registry puoi cifrare gli importi, inviare pagamenti e decifrare il saldo residuo solo quando necessario.
+            <p className="mt-4 text-sm text-sky-500">
+              Una volta dentro il Debt Registry i tuoi dati saranno al sicuro, crittografati e accessibili solo a te e alle controparti autorizzate.
             </p>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-base-200 bg-base-100 p-10 shadow-xl">
+        <section className="rounded-3xl border border-sky-300/60 bg-gradient-to-r from-sky-500 via-sky-600 to-sky-700 p-10 shadow-xl">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="text-2xl font-semibold text-base-content">Pronto a iniziare?</h3>
-              <p className="mt-2 text-base text-base-content/70">
+              <h3 className="text-2xl font-semibold text-white">Pronto a iniziare?</h3>
+              <p className="mt-2 text-base text-sky-100/80">
                 Accedi, collega il wallet Civic e visita il Debt Registry per registrare il primo debito cifrato.
               </p>
             </div>
             <Link
               href="/debtregistry"
-              className="rounded-md bg-secondary px-6 py-3 text-base font-semibold text-secondary-content shadow-lg transition hover:scale-105 hover:bg-secondary-focus"
+              className="rounded-md bg-white px-6 py-3 text-base font-semibold text-sky-700 shadow-lg transition hover:scale-105 hover:bg-sky-100"
             >
               Vai al Debt Registry
             </Link>
