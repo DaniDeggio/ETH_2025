@@ -87,7 +87,7 @@ export const Header = () => {
           <div className="flex relative w-10 h-10">
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight">Debtly</span>
+            <span className="font-bold leading-tight">DebtShield</span>
             <span className="text-xs">Private loans management</span>
           </div>
         </Link>

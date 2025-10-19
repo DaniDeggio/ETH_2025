@@ -49,7 +49,7 @@ const Home: NextPage = () => {
               DebtRegistry combina smart contract Ethereum e crittografia Fully Homomorphic per tenere traccia dei debiti,
               creare rimborsi protetti e verificare i saldi senza esporre le informazioni sensibili.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/debtregistry"
                 className="rounded-md bg-sky-200 px-6 py-3 text-base font-semibold text-sky-900 shadow-lg transition hover:scale-105 hover:bg-sky-300"
@@ -57,21 +57,6 @@ const Home: NextPage = () => {
                 Apri il Debt Registry
               </Link>
             </div>
-          </div>
-          <div className="rounded-3xl border border-sky-200 bg-sky-50/80 p-6 shadow-xl backdrop-blur-sm">
-            <h2 className="text-lg font-semibold text-sky-900">Stato connessione</h2>
-            <p className="mt-3 text-sm text-sky-600">
-              Accedi con Civic e collega il wallet supportato per iniziare a gestire i tuoi debiti.
-            </p>
-            <div className="mt-6 rounded-xl border border-dashed border-sky-200 bg-sky-100/70 p-4 text-sm">
-              <span className="font-medium text-sky-700">Wallet collegato:</span>
-              <div className="mt-2">
-                <Address address={isConnected ? address : undefined} />
-              </div>
-            </div>
-            <p className="mt-6 text-xs text-sky-500">
-              Il wallet Civic fornisce l&apos;identità verificata: le interazioni con DebtRegistry richiedono una sessione attiva.
-            </p>
           </div>
         </div>
 

@@ -440,7 +440,7 @@ export const FHEDebtRegistry = () => {
 
 	if (!user) {
 		return (
-			<div className="max-w-6xl mx-auto p-6 text-sky-950">
+			<div className="max-w-7xl mx-auto p-6 text-sky-950">
 				<div className="flex items-center justify-center">
 					<div className="rounded-3xl border border-sky-200/60 bg-sky-50/90 p-8 text-center shadow-[0_25px_50px_-20px_rgba(14,116,144,0.35)]">
 						<div className="mb-4">
@@ -458,7 +458,7 @@ export const FHEDebtRegistry = () => {
 
 	if (!isConnected) {
 		return (
-			<div className="max-w-6xl mx-auto p-6 text-sky-950">
+			<div className="max-w-7xl mx-auto p-6 text-sky-950">
 				<div className="flex items-center justify-center">
 					<div className="rounded-3xl border border-sky-200/60 bg-sky-50/90 p-8 text-center shadow-[0_25px_50px_-20px_rgba(14,116,144,0.35)]">
 						<div className="mb-4">
@@ -475,31 +475,31 @@ export const FHEDebtRegistry = () => {
 	}
 
 	return (
-		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-6xl flex-col gap-8 px-6 py-10 text-sky-950">
-			<div className="absolute inset-0 -z-10 overflow-hidden rounded-[36px] bg-gradient-to-br from-sky-950 via-sky-900 to-sky-800 shadow-[0_40px_120px_-40px_rgba(7,89,133,0.8)]" />
-			<div className="absolute inset-0 -z-10 rounded-[36px] bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.25),_transparent_45%),_radial-gradient(circle_at_bottom,_rgba(56,189,248,0.2),_transparent_55%)]" />
-			<header className="relative rounded-3xl border border-sky-100/30 bg-sky-900/20 p-10 text-sky-50 shadow-[0_25px_60px_-20px_rgba(56,189,248,0.35)] backdrop-blur-2xl">
+		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-7xl flex-col gap-8 px-8 py-10 text-sky-950">
+			<div className="absolute inset-0 -z-10 overflow-hidden rounded-[36px] bg-gradient-to-br from-sky-100 via-sky-200 to-sky-300 shadow-[0_40px_120px_-40px_rgba(14,165,233,0.4)]" />
+			<div className="absolute inset-0 -z-10 rounded-[36px] bg-[radial-gradient(circle_at_top,_rgba(186,230,253,0.45),_transparent_48%),_radial-gradient(circle_at_bottom,_rgba(125,211,252,0.35),_transparent_60%)]" />
+			<header className="relative rounded-3xl border border-sky-200/60 bg-sky-50/90 p-10 text-sky-900 shadow-[0_25px_60px_-20px_rgba(14,165,233,0.25)] backdrop-blur-xl">
 				<div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 					<div className="space-y-3">
-						<span className="inline-flex items-center rounded-full bg-sky-100/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
+						<span className="inline-flex items-center rounded-full bg-sky-200/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-900">
 							dApp Civic Ready
 						</span>
-						<h1 className="text-4xl font-semibold tracking-tight text-sky-50 sm:text-5xl">FHE Debt Registry</h1>
-						<p className="max-w-2xl text-base text-sky-100/70">
+						<h1 className="text-4xl font-semibold tracking-tight text-sky-950 sm:text-5xl">FHE Debt Registry</h1>
+						<p className="max-w-2xl text-base text-sky-800/80">
 							Gestisci debiti e rimborsi con trasparenza verificabile e privacy cifrata end-to-end. Tutte le azioni passano dal tuo wallet Civic, con importi trattati dal contratto solo in forma omomorfica.
 						</p>
 					</div>
-					<div className="rounded-2xl border border-sky-100/25 bg-sky-900/30 px-6 py-4 text-sm">
-						<div className="text-sky-100/70">Wallet connesso</div>
-						<div className="mt-3 rounded-xl border border-sky-100/20 bg-sky-950/40 p-3 text-sky-100">
+					<div className="rounded-2xl border border-sky-200/60 bg-sky-100/70 px-6 py-4 text-sm text-sky-900">
+						<div className="text-sky-800/80">Wallet connesso</div>
+						<div className="mt-3 rounded-xl border border-sky-200/50 bg-sky-50/90 p-3">
 							<Address address={isConnected ? address : undefined} />
 						</div>
-						<p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-sky-100/60">Sessione Civic obbligatoria</p>
+						<p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-sky-700/80">Sessione Civic obbligatoria</p>
 					</div>
 				</div>
 			</header>
 
-			<section className="relative grid gap-8 lg:grid-cols-[1.2fr,1fr]">
+			<section className="relative grid gap-8 lg:grid-cols-2">
 				<div className={sectionClass}>
 					<h3 className={titleClass}>
 						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
@@ -569,27 +569,6 @@ export const FHEDebtRegistry = () => {
 						</span>
 					</div>
 				</div>
-
-				<div className={sectionClass}>
-					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 text-2xl text-sky-50 shadow-[0_12px_30px_-16px_rgba(37,99,235,0.55)]">
-							🔒
-						</span>
-						<span>Panoramica FHE</span>
-					</h3>
-					<div className="space-y-4 text-sm text-sky-900/70">
-						{printProperty("Instance", fhevmInstance ? "Connected" : "Not ready")}
-						{printProperty("Status", fhevmStatus)}
-						{printProperty("Error", fhevmError ?? "-")}
-						{printProperty("Can Decrypt", canDecrypt)}
-					</div>
-					<div className="mt-6 rounded-2xl border border-sky-100/50 bg-sky-50/70 p-4 text-xs text-sky-900/70 shadow-inner">
-						Le richieste di cifratura e decifratura vengono firmate con la chiave Civic attiva. Assicurati di approvare le richieste nel wallet.
-					</div>
-				</div>
-			</section>
-
-			<section className="relative grid gap-8 lg:grid-cols-[1fr,1fr]">
 				<div className={sectionClass}>
 					<h3 className={titleClass}>
 						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
@@ -615,7 +594,6 @@ export const FHEDebtRegistry = () => {
 							{isDecrypting ? "⏳ Decrypting..." : "Decifra importi"}
 						</button>
 					</div>
-
 					{debtView && (
 						<div className="mt-8 rounded-2xl border border-sky-100/45 bg-sky-50/70 p-6 shadow-inner">
 							<h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-sky-800">Dettagli correnti</h4>
@@ -633,23 +611,6 @@ export const FHEDebtRegistry = () => {
 							</div>
 						</div>
 					)}
-				</div>
-
-				<div className={sectionClass}>
-					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-indigo-500 text-2xl text-sky-50 shadow-[0_12px_30px_-16px_rgba(37,99,235,0.55)]">
-							🧾
-						</span>
-						<span>Attività & log</span>
-					</h3>
-					<div className="space-y-4 text-sm text-sky-900/70">
-						{printProperty("Status Message", statusMessage || "-")}
-						{printProperty("Last TX", lastTxHash ?? "-")}
-						{printProperty("Handle", outstandingHandle ?? "N/A")}
-					</div>
-					<div className="mt-6 rounded-2xl border border-sky-100/45 bg-sky-50/70 p-5 text-xs text-sky-900/70 shadow-inner">
-						Ogni transazione viene tracciata on-chain. Puoi aprire il Block Explorer per approfondire gas e conferme.
-					</div>
 				</div>
 			</section>
 		</div>
