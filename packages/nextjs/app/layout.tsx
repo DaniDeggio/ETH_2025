@@ -3,6 +3,7 @@ import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithPro
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
+import { NexusChatWidget } from "../components/NexusChatWidget";
 
 export const metadata = getMetadata({
   title: "DebtShield",
@@ -15,6 +16,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
       <body>
         <ThemeProvider enableSystem>
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+          <NexusChatWidget />
         </ThemeProvider>
       </body>
     </html>
