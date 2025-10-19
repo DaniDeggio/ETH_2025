@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLanguage } from "../../components/LanguageProvider";
 import { useUser } from "@civic/auth-web3/react";
 import {
 	buildParamsFromAbi,
@@ -23,220 +24,223 @@ type DebtView = {
 	creditor: string;
 	dueDate: bigint;
 	closed: boolean;
-};
+}
 
-const initialMockChains = {
-	31337: "http://localhost:8545",
-	11155111: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ?? "https://rpc.sepolia.org",
-} as const;
+	export default function FHEDebtRegistry() {
+	// ---- ALL LOGIC BELOW IS NOW INSIDE THE COMPONENT ----
 
-const toDateInputValue = (date: Date) => {
-	const iso = date.toISOString();
-	return iso.slice(0, 10);
-};
+	const initialMockChains = {
+		31337: "http://localhost:8545",
+		11155111: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ?? "https://rpc.sepolia.org",
+	} as const;
 
-const getDefaultDueDate = () => {
-	const tomorrow = new Date();
-	tomorrow.setDate(tomorrow.getDate() + 1);
-	return toDateInputValue(tomorrow);
-};
+	const toDateInputValue = (date: Date) => {
+		const iso = date.toISOString();
+		return iso.slice(0, 10);
+	};
 
-export const FHEDebtRegistry = () => {
-	const { isConnected, chain, address } = useAccount();
-	const { user } = useUser();
+	const getDefaultDueDate = () => {
+		const tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		return toDateInputValue(tomorrow);
+	};
 
-	const provider = useMemo(() => {
-		if (typeof window === "undefined") return undefined;
-		return (window as any).ethereum;
-	}, []);
+		const { isConnected, chain, address } = useAccount();
+		const { user } = useUser();
+		const { t } = useLanguage();
 
-	const chainId = chain?.id;
+		const provider = useMemo(() => {
+			if (typeof window === "undefined") return undefined;
+			return (window as any).ethereum;
+		}, []);
 
-	const {
-		instance: fhevmInstance,
-		status: fhevmStatus,
-		error: fhevmError,
-	} = useFhevm({
-		provider,
-		chainId,
-		initialMockChains,
-		enabled: true,
-	});
+		const chainId = chain?.id;
 
-	const {
-		chainId: wagmiChainId,
-		ethersReadonlyProvider,
-		ethersSigner,
-	} = useWagmiEthers(initialMockChains);
+		const {
+			instance: fhevmInstance,
+			status: fhevmStatus,
+			error: fhevmError,
+		} = useFhevm({
+			provider,
+			chainId,
+			initialMockChains,
+			enabled: true,
+		});
 
-	const allowedChainId = typeof wagmiChainId === "number" ? (wagmiChainId as AllowedChainIds) : undefined;
-	const { data: debtRegistry } = useDeployedContractInfo({ contractName: "DebtRegistry", chainId: allowedChainId });
-	const { data: confidentialToken } = useDeployedContractInfo({ contractName: "ConfidentialTokenExample", chainId: allowedChainId });
+		const {
+			chainId: wagmiChainId,
+			ethersReadonlyProvider,
+			ethersSigner,
+		} = useWagmiEthers(initialMockChains);
 
-	const [statusMessage, setStatusMessage] = useState<string>("");
-	const [lastTxHash, setLastTxHash] = useState<string | undefined>(undefined);
+		const allowedChainId = typeof wagmiChainId === "number" ? (wagmiChainId as AllowedChainIds) : undefined;
+		const { data: debtRegistry } = useDeployedContractInfo({ contractName: "DebtRegistry", chainId: allowedChainId });
+		const { data: confidentialToken } = useDeployedContractInfo({ contractName: "ConfidentialTokenExample", chainId: allowedChainId });
 
-	const [createRef, setCreateRef] = useState<string>("");
-	const [createCreditor, setCreateCreditor] = useState<string>("");
-	const [createAmount, setCreateAmount] = useState<string>("");
-	const [createDueDate, setCreateDueDate] = useState<string>(() => getDefaultDueDate());
+		const [statusMessage, setStatusMessage] = useState<string>("");
+		const [lastTxHash, setLastTxHash] = useState<string | undefined>(undefined);
 
-	const [lookupRef, setLookupRef] = useState<string>("");
-	const [paymentAmount, setPaymentAmount] = useState<string>("");
+		const [createRef, setCreateRef] = useState<string>("");
+		const [createCreditor, setCreateCreditor] = useState<string>("");
+		const [createAmount, setCreateAmount] = useState<string>("");
+		const [createDueDate, setCreateDueDate] = useState<string>(() => getDefaultDueDate());
 
-	const [activeDebtId, setActiveDebtId] = useState<`0x${string}` | undefined>(undefined);
-	const [debtView, setDebtView] = useState<DebtView | undefined>(undefined);
-	const [isFetchingDebt, setIsFetchingDebt] = useState<boolean>(false);
-	const [isSubmittingTx, setIsSubmittingTx] = useState<boolean>(false);
-	const [outstandingHandle, setOutstandingHandle] = useState<`0x${string}` | undefined>(undefined);
-	const [walletBalanceHandle, setWalletBalanceHandle] = useState<`0x${string}` | undefined>(undefined);
-	const [isFetchingBalance, setIsFetchingBalance] = useState<boolean>(false);
+		const [lookupRef, setLookupRef] = useState<string>("");
+		const [paymentAmount, setPaymentAmount] = useState<string>("");
 
-	const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
+		const [activeDebtId, setActiveDebtId] = useState<`0x${string}` | undefined>(undefined);
+		const [debtView, setDebtView] = useState<DebtView | undefined>(undefined);
+		const [isFetchingDebt, setIsFetchingDebt] = useState<boolean>(false);
+		const [isSubmittingTx, setIsSubmittingTx] = useState<boolean>(false);
+		const [outstandingHandle, setOutstandingHandle] = useState<`0x${string}` | undefined>(undefined);
+		const [walletBalanceHandle, setWalletBalanceHandle] = useState<`0x${string}` | undefined>(undefined);
+		const [isFetchingBalance, setIsFetchingBalance] = useState<boolean>(false);
 
-	const decryptRequests = useMemo(() => {
-		const requests: Array<{ handle: `0x${string}`; contractAddress: `0x${string}` }> = [];
+		const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
 
-		if (debtRegistry?.address && outstandingHandle && outstandingHandle !== ethers.ZeroHash) {
-			requests.push({
-				handle: outstandingHandle,
-				contractAddress: debtRegistry.address as `0x${string}`,
-			});
-		}
+		const decryptRequests = useMemo(() => {
+			const requests: Array<{ handle: `0x${string}`; contractAddress: `0x${string}` }> = [];
 
-		if (confidentialToken?.address && walletBalanceHandle && walletBalanceHandle !== ethers.ZeroHash) {
-			requests.push({
-				handle: walletBalanceHandle,
-				contractAddress: confidentialToken.address as `0x${string}`,
-			});
-		}
-
-		return requests.length ? (requests as any) : undefined;
-	}, [confidentialToken?.address, debtRegistry?.address, outstandingHandle, walletBalanceHandle]);
-
-	const {
-		canDecrypt,
-		decrypt,
-		isDecrypting,
-		message: decryptMessage,
-		results: decryptResults,
-		error: decryptError,
-	} = useFHEDecrypt({
-		instance: fhevmInstance,
-		ethersSigner: ethersSigner as any,
-		fhevmDecryptionSignatureStorage,
-		chainId: wagmiChainId,
-		requests: decryptRequests,
-	});
-
-	useEffect(() => {
-		if (decryptMessage) setStatusMessage(decryptMessage);
-	}, [decryptMessage]);
-
-	useEffect(() => {
-		if (decryptError) {
-			console.error("decrypt error", decryptError);
-			setStatusMessage(decryptError);
-		}
-	}, [decryptError]);
-
-	const decryptedOutstanding = useMemo(() => {
-		if (!outstandingHandle) return undefined;
-		const clear = decryptResults[outstandingHandle];
-		return typeof clear === "undefined" ? undefined : clear;
-	}, [decryptResults, outstandingHandle]);
-
-	const decryptedWalletBalance = useMemo(() => {
-		if (!walletBalanceHandle) return undefined;
-		const clear = decryptResults[walletBalanceHandle];
-		return typeof clear === "undefined" ? undefined : clear;
-	}, [decryptResults, walletBalanceHandle]);
-
-	const walletBalanceDisplay = useMemo(() => {
-		if (!walletBalanceHandle) return "—";
-		if (walletBalanceHandle === ethers.ZeroHash) return "0";
-		if (typeof decryptedWalletBalance !== "undefined") return decryptedWalletBalance.toString();
-		return "🔐";
-	}, [decryptedWalletBalance, walletBalanceHandle]);
-
-	const showBalanceDecryptHint = useMemo(() => {
-		return (
-			!!walletBalanceHandle &&
-			walletBalanceHandle !== ethers.ZeroHash &&
-			typeof decryptedWalletBalance === "undefined"
-		);
-	}, [decryptedWalletBalance, walletBalanceHandle]);
-
-	const walletBalanceHandleDisplay = useMemo(() => {
-		if (!walletBalanceHandle) return "N/A";
-		if (walletBalanceHandle.length <= 18) return walletBalanceHandle;
-		return `${walletBalanceHandle.slice(0, 10)}…${walletBalanceHandle.slice(-6)}`;
-	}, [walletBalanceHandle]);
-
-		const refreshWalletBalance = useCallback(async () => {
-			if (!address) {
-				setWalletBalanceHandle(undefined);
-				return;
+			if (debtRegistry?.address && outstandingHandle && outstandingHandle !== ethers.ZeroHash) {
+				requests.push({
+					handle: outstandingHandle,
+					contractAddress: debtRegistry.address as `0x${string}`,
+				});
 			}
-			if (!confidentialToken?.address || !confidentialToken?.abi || !ethersReadonlyProvider) return;
 
-			setIsFetchingBalance(true);
-			try {
-				const tokenContract = new ethers.Contract(
-					confidentialToken.address as `0x${string}`,
-					confidentialToken.abi as any,
-					ethersReadonlyProvider,
-				);
-				const handle = (await tokenContract.confidentialBalanceOf(address)) as `0x${string}`;
-				setWalletBalanceHandle(handle);
-			} catch (err) {
-				console.error(err);
-				setStatusMessage(`Errore aggiornando saldo: ${err instanceof Error ? err.message : String(err)}`);
-			} finally {
-				setIsFetchingBalance(false);
+			if (confidentialToken?.address && walletBalanceHandle && walletBalanceHandle !== ethers.ZeroHash) {
+				requests.push({
+					handle: walletBalanceHandle,
+					contractAddress: confidentialToken.address as `0x${string}`,
+				});
 			}
-		}, [address, confidentialToken?.abi, confidentialToken?.address, ethersReadonlyProvider]);
+
+			return requests.length ? (requests as any) : undefined;
+		}, [confidentialToken?.address, debtRegistry?.address, outstandingHandle, walletBalanceHandle]);
+
+		const {
+			canDecrypt,
+			decrypt,
+			isDecrypting,
+			message: decryptMessage,
+			results: decryptResults,
+			error: decryptError,
+		} = useFHEDecrypt({
+			instance: fhevmInstance,
+			ethersSigner: ethersSigner as any,
+			fhevmDecryptionSignatureStorage,
+			chainId: wagmiChainId,
+			requests: decryptRequests,
+		});
 
 		useEffect(() => {
-			refreshWalletBalance();
-		}, [refreshWalletBalance]);
+			if (decryptMessage) setStatusMessage(decryptMessage);
+		}, [decryptMessage]);
 
-	const { encryptWith } = useFHEEncryption({
-		instance: fhevmInstance,
-		ethersSigner: ethersSigner as any,
-		contractAddress: debtRegistry?.address as `0x${string}` | undefined,
-	});
-
-	const computeDebtId = useCallback((input: string): `0x${string}` | undefined => {
-		const trimmed = input.trim();
-		if (!trimmed) return undefined;
-		if (ethers.isHexString(trimmed)) {
-			try {
-				const normalized = ethers.zeroPadValue(trimmed, 32);
-				return normalized as `0x${string}`;
-			} catch (err) {
-				console.error("Failed to normalize hex debt id", err);
-				return undefined;
+		useEffect(() => {
+			if (decryptError) {
+				console.error("decrypt error", decryptError);
+				setStatusMessage(decryptError);
 			}
-		}
-		return ethers.id(trimmed) as `0x${string}`;
-	}, []);
+		}, [decryptError]);
 
-	const createDebtId = useMemo(() => computeDebtId(createRef), [computeDebtId, createRef]);
-	const lookupDebtId = useMemo(() => computeDebtId(lookupRef), [computeDebtId, lookupRef]);
+		const decryptedOutstanding = useMemo(() => {
+			if (!outstandingHandle) return undefined;
+			const clear = decryptResults[outstandingHandle];
+			return typeof clear === "undefined" ? undefined : clear;
+		}, [decryptResults, outstandingHandle]);
 
-	const getEncryptionMethodFor = useCallback(
-		(fnName: "createDebt" | "pay") => {
-			if (!debtRegistry?.abi) return { method: undefined as string | undefined, error: "Contract ABI unavailable" } as const;
-			const fnAbi = (debtRegistry.abi as unknown as any[]).find(item => item?.type === "function" && item?.name === fnName);
-			if (!fnAbi) return { method: undefined as string | undefined, error: `Function ${fnName} not found in ABI` } as const;
-			const encryptedInput = fnAbi.inputs?.find((input: any) => String(input?.internalType || "").includes("externalEuint"));
-			if (!encryptedInput)
-				return { method: undefined as string | undefined, error: `Encrypted input not found for ${fnName}` } as const;
-			return { method: getEncryptionMethod(encryptedInput.internalType), error: undefined } as const;
-		},
-		[debtRegistry?.abi],
-	);
+		const decryptedWalletBalance = useMemo(() => {
+			if (!walletBalanceHandle) return undefined;
+			const clear = decryptResults[walletBalanceHandle];
+			return typeof clear === "undefined" ? undefined : clear;
+		}, [decryptResults, walletBalanceHandle]);
+
+		const walletBalanceDisplay = useMemo(() => {
+			if (!walletBalanceHandle) return "—";
+			if (walletBalanceHandle === ethers.ZeroHash) return "0";
+			if (typeof decryptedWalletBalance !== "undefined") return decryptedWalletBalance.toString();
+			return "🔐";
+		}, [decryptedWalletBalance, walletBalanceHandle]);
+
+		const showBalanceDecryptHint = useMemo(() => {
+			return (
+				!!walletBalanceHandle &&
+				walletBalanceHandle !== ethers.ZeroHash &&
+				typeof decryptedWalletBalance === "undefined"
+			);
+		}, [decryptedWalletBalance, walletBalanceHandle]);
+
+		const walletBalanceHandleDisplay = useMemo(() => {
+			if (!walletBalanceHandle) return "N/A";
+			if (walletBalanceHandle.length <= 18) return walletBalanceHandle;
+			return `${walletBalanceHandle.slice(0, 10)}…${walletBalanceHandle.slice(-6)}`;
+		}, [walletBalanceHandle]);
+
+			const refreshWalletBalance = useCallback(async () => {
+				if (!address) {
+					setWalletBalanceHandle(undefined);
+					return;
+				}
+				if (!confidentialToken?.address || !confidentialToken?.abi || !ethersReadonlyProvider) return;
+
+				setIsFetchingBalance(true);
+				try {
+					const tokenContract = new ethers.Contract(
+						confidentialToken.address as `0x${string}`,
+						confidentialToken.abi as any,
+						ethersReadonlyProvider,
+					);
+					const handle = (await tokenContract.confidentialBalanceOf(address)) as `0x${string}`;
+					setWalletBalanceHandle(handle);
+				} catch (err) {
+					console.error(err);
+					setStatusMessage(`Errore aggiornando saldo: ${err instanceof Error ? err.message : String(err)}`);
+				} finally {
+					setIsFetchingBalance(false);
+				}
+			}, [address, confidentialToken?.abi, confidentialToken?.address, ethersReadonlyProvider]);
+
+			useEffect(() => {
+				refreshWalletBalance();
+			}, [refreshWalletBalance]);
+
+		const { encryptWith } = useFHEEncryption({
+			instance: fhevmInstance,
+			ethersSigner: ethersSigner as any,
+			contractAddress: debtRegistry?.address as `0x${string}` | undefined,
+		});
+
+		const computeDebtId = useCallback((input: string): `0x${string}` | undefined => {
+			const trimmed = input.trim();
+			if (!trimmed) return undefined;
+			if (ethers.isHexString(trimmed)) {
+				try {
+					const normalized = ethers.zeroPadValue(trimmed, 32);
+					return normalized as `0x${string}`;
+				} catch (err) {
+					console.error("Failed to normalize hex debt id", err);
+					return undefined;
+				}
+			}
+			return ethers.id(trimmed) as `0x${string}`;
+		}, []);
+
+		const createDebtId = useMemo(() => computeDebtId(createRef), [computeDebtId, createRef]);
+		const lookupDebtId = useMemo(() => computeDebtId(lookupRef), [computeDebtId, lookupRef]);
+
+		const getEncryptionMethodFor = useCallback(
+			(fnName: "createDebt" | "pay") => {
+				if (!debtRegistry?.abi) return { method: undefined as string | undefined, error: "Contract ABI unavailable" } as const;
+				const fnAbi = (debtRegistry.abi as unknown as any[]).find(item => item?.type === "function" && item?.name === fnName);
+				if (!fnAbi) return { method: undefined as string | undefined, error: `Function ${fnName} not found in ABI` } as const;
+				const encryptedInput = fnAbi.inputs?.find((input: any) => String(input?.internalType || "").includes("externalEuint"));
+				if (!encryptedInput)
+					return { method: undefined as string | undefined, error: `Encrypted input not found for ${fnName}` } as const;
+				return { method: getEncryptionMethod(encryptedInput.internalType), error: undefined } as const;
+			},
+			[debtRegistry?.abi],
+		);
 
 	const refreshDebt = useCallback(
 		async (id: `0x${string}`) => {
@@ -353,6 +357,36 @@ export const FHEDebtRegistry = () => {
 		refreshDebt,
 		refreshWalletBalance,
 	]);
+	type FieldProps = {
+		label: string;
+		value: string;
+		onChange: (value: string) => void;
+		placeholder?: string;
+		type?: string;
+		inputMode?: "text" | "decimal" | "numeric";
+		min?: string;
+		step?: string;
+		max?: string;
+	};
+
+	const Field = ({ label, value, onChange, placeholder, type = "text", inputMode, min, step, max }: FieldProps) => {
+		return (
+			<label className="flex flex-col space-y-2 text-sky-950">
+				<span className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800">{label}</span>
+				<input
+					className="rounded-xl border border-sky-100/60 bg-sky-50/80 px-3 py-3 text-base text-sky-950 shadow-[0_8px_18px_-12px_rgba(7,89,133,0.35)] transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-200"
+					value={value}
+					onChange={event => onChange(event.target.value)}
+					placeholder={placeholder}
+					type={type}
+					inputMode={inputMode}
+					min={min}
+					step={step}
+					max={max}
+				/>
+			</label>
+		);
+	};
 
 	const handlePayDebt = useCallback(async () => {
 		if (!fhevmInstance) return setStatusMessage("FHEVM instance not ready");
@@ -448,8 +482,8 @@ export const FHEDebtRegistry = () => {
 								⚠️
 							</span>
 						</div>
-						<h2 className="mb-2 text-2xl font-extrabold text-sky-950">Civic session required</h2>
-						<p className="text-sky-900/70">Sign in with Civic to use the FHE Debt Registry demo.</p>
+						<h2 className="mb-2 text-2xl font-extrabold text-sky-950">{t("debtRegistry.civicSessionRequired")}</h2>
+						<p className="text-sky-900/70">{t("debtRegistry.signInWithCivic")}</p>
 					</div>
 				</div>
 			</div>
@@ -466,13 +500,14 @@ export const FHEDebtRegistry = () => {
 								⚠️
 							</span>
 						</div>
-						<h2 className="mb-2 text-2xl font-extrabold text-sky-950">Wallet not connected</h2>
-						<p className="text-sky-900/70">Connect your wallet through Civic to interact with the Debt Registry.</p>
+						<h2 className="mb-2 text-2xl font-extrabold text-sky-950">{t("debtRegistry.walletNotConnected")}</h2>
+						<p className="text-sky-900/70">{t("debtRegistry.connectWalletCivic")}</p>
 					</div>
 				</div>
 			</div>
 		);
 	}
+
 
 	return (
 		<div className="relative mx-auto flex min-h-[80vh] w-full max-w-[92rem] flex-col gap-8 px-8 py-10 text-sky-950">
@@ -482,132 +517,159 @@ export const FHEDebtRegistry = () => {
 				<div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 					<div className="space-y-3">
 						<span className="inline-flex items-center rounded-full bg-sky-200/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-900">
-							dApp Civic Ready
+							{t("debtRegistry.civicReady")}
 						</span>
-						<h1 className="text-4xl font-semibold tracking-tight text-sky-950 sm:text-5xl">FHE Debt Registry</h1>
+						<h1 className="text-4xl font-semibold tracking-tight text-sky-950 sm:text-5xl">{t("debtRegistry.title")}</h1>
 						<p className="max-w-2xl text-base text-sky-800/80">
-							Gestisci debiti e rimborsi con trasparenza verificabile e privacy cifrata end-to-end. Tutte le azioni passano dal tuo wallet Civic, con importi trattati dal contratto solo in forma omomorfica.
+							{t("debtRegistry.intro")}
 						</p>
 					</div>
 					<div className="rounded-2xl border border-sky-200/60 bg-sky-100/70 px-6 py-4 text-sm text-sky-900">
-						<div className="text-sky-800/80">Wallet connesso</div>
+						<div className="text-sky-800/80">{t("debtRegistry.walletConnected")}</div>
 						<div className="mt-3 rounded-xl border border-sky-200/50 bg-sky-50/90 p-3">
 							<Address address={isConnected ? address : undefined} />
 						</div>
-						<p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-sky-700/80">Sessione Civic obbligatoria</p>
+						<p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-sky-700/80">{t("debtRegistry.civicSessionRequiredNote")}</p>
 					</div>
 				</div>
 			</header>
 
 			<section className="relative grid gap-8 lg:grid-cols-2">
 				<div className={sectionClass}>
-					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
-							📄
-						</span>
-						<span>Nuovo debito</span>
-					</h3>
-					<p className="mb-6 text-sm text-sky-900/70">
-						Definisci un nuovo rapporto di debito specificando controparti, importo e scadenza. L&apos;importo viene cifrato lato client prima di raggiungere il contratto.
-					</p>
+								<h3 className={titleClass}>
+									<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
+										📄
+									</span>
+									<span>{t("debtRegistry.newDebt.title")}</span>
+								</h3>
+								<p className="mb-6 text-sm text-sky-900/70">
+									{t("debtRegistry.newDebt.description")}
+								</p>
 					<div className="mb-6 rounded-2xl border border-sky-100/50 bg-sky-50/85 p-5 shadow-[0_18px_36px_-24px_rgba(7,89,133,0.35)]">
 						<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 							<div>
-								<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-800">Saldo ConfidentialToken</p>
+												<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-800">{t("debtRegistry.confidentialTokenBalance")}</p>
 								<div className="mt-2 text-3xl font-extrabold text-sky-950">{walletBalanceDisplay}</div>
-								<p className="mt-2 text-xs text-sky-800/80">
-									Il saldo è custodito cifrato sul contratto. Puoi aggiornarlo e decifrarlo in ogni momento dal wallet Civic.
-								</p>
+												<p className="mt-2 text-xs text-sky-800/80">
+													{t("debtRegistry.confidentialTokenBalanceNote")}
+												</p>
 							</div>
 							<span className="inline-flex items-center rounded-lg border border-sky-100/50 bg-sky-50/80 px-3 py-1 font-mono text-[11px] font-semibold text-sky-800">
 								{walletBalanceHandleDisplay}
 							</span>
 						</div>
 						<div className="mt-4 flex flex-wrap items-center gap-3">
-							<button
-								className={`${subtleButtonClass} px-4 py-2 text-sm`}
-								onClick={refreshWalletBalance}
-								disabled={isFetchingBalance || !confidentialToken?.address}
-							>
-								{isFetchingBalance ? "⏳ Aggiornamento..." : "Aggiorna saldo"}
-							</button>
-							<button
-								className={`${subtleButtonClass} px-4 py-2 text-sm`}
-								onClick={decrypt}
-								disabled={
-									!canDecrypt ||
-									isDecrypting ||
-									!walletBalanceHandle ||
-									walletBalanceHandle === ethers.ZeroHash
-								}
-							>
-								{isDecrypting ? "⏳ Decifrando..." : "Decifra importi"}
-							</button>
-							{showBalanceDecryptHint && (
-								<span className="text-xs font-semibold text-sky-800">
-									🔐 Approva la firma in Civic per leggere il valore chiaro.
-								</span>
-							)}
+											<button
+												className={`${subtleButtonClass} px-4 py-2 text-sm`}
+												onClick={refreshWalletBalance}
+												disabled={isFetchingBalance || !confidentialToken?.address}
+											>
+												{isFetchingBalance ? t("debtRegistry.updating") : t("debtRegistry.refreshBalance")}
+											</button>
+											<button
+												className={`${subtleButtonClass} px-4 py-2 text-sm`}
+												onClick={decrypt}
+												disabled={
+													!canDecrypt ||
+													isDecrypting ||
+													!walletBalanceHandle ||
+													walletBalanceHandle === ethers.ZeroHash
+												}
+											>
+												{isDecrypting ? t("debtRegistry.decrypting") : t("debtRegistry.decryptAmounts")}
+											</button>
+											{showBalanceDecryptHint && (
+												<span className="text-xs font-semibold text-sky-800">
+													{t("debtRegistry.approveSignatureToDecrypt")}
+												</span>
+											)}
 						</div>
 					</div>
 					<div className="grid gap-5 md:grid-cols-2">
-						<Field label="Debt Reference" value={createRef} onChange={setCreateRef} placeholder="invoice-123" />
-						<Field label="Creditor Address" value={createCreditor} onChange={setCreateCreditor} placeholder="0x..." />
-						<Field label="Amount (integer)" value={createAmount} onChange={setCreateAmount} placeholder="1000" inputMode="numeric" />
-						<Field label="Due Date" value={createDueDate} onChange={setCreateDueDate} type="date" min={todayIso} />
+										<Field label={t("debtRegistry.fields.debtReference")}
+											value={createRef}
+											onChange={setCreateRef}
+											placeholder={t("debtRegistry.fields.debtReferencePlaceholder")}
+										/>
+										<Field label={t("debtRegistry.fields.creditorAddress")}
+											value={createCreditor}
+											onChange={setCreateCreditor}
+											placeholder={t("debtRegistry.fields.creditorAddressPlaceholder")}
+										/>
+										<Field label={t("debtRegistry.fields.amount")}
+											value={createAmount}
+											onChange={setCreateAmount}
+											placeholder={t("debtRegistry.fields.amountPlaceholder")}
+											inputMode="numeric"
+										/>
+										<Field label={t("debtRegistry.fields.dueDate")}
+											value={createDueDate}
+											onChange={setCreateDueDate}
+											type="date"
+											min={todayIso}
+										/>
 					</div>
 					<div className="mt-6 flex flex-wrap items-center gap-4">
-						<button
-							className={primaryButtonClass}
-							onClick={handleCreateDebt}
-							disabled={isSubmittingTx || !fhevmInstance || !debtRegistry?.address}
-						>
-							{isSubmittingTx ? "⏳ Processing..." : "Crea nuovo debito"}
-						</button>
-						<span className="rounded-full bg-sky-900/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
-							Debt ID {createDebtId ?? "pending"}
-						</span>
+										<button
+											className={primaryButtonClass}
+											onClick={handleCreateDebt}
+											disabled={isSubmittingTx || !fhevmInstance || !debtRegistry?.address}
+										>
+											{isSubmittingTx ? t("debtRegistry.processing") : t("debtRegistry.createNewDebt")}
+										</button>
+										<span className="rounded-full bg-sky-900/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
+											{t("debtRegistry.debtId")} {createDebtId ?? t("debtRegistry.pending")}
+										</span>
 					</div>
 				</div>
 				<div className={sectionClass}>
-					<h3 className={titleClass}>
-						<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
-							💸
-						</span>
-						<span>Gestisci debito</span>
-					</h3>
-					<p className="mb-6 text-sm text-sky-900/70">
-						Ricerca un debito esistente, invia un rimborso confidenziale e richiedi la decifratura del saldo residuo.
-					</p>
+								<h3 className={titleClass}>
+									<span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 text-2xl text-sky-950 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.55)]">
+										💸
+									</span>
+									<span>{t("debtRegistry.manageDebt.title")}</span>
+								</h3>
+								<p className="mb-6 text-sm text-sky-900/70">
+									{t("debtRegistry.manageDebt.description")}
+								</p>
 					<div className="grid gap-5 md:grid-cols-2">
-						<Field label="Debt Reference" value={lookupRef} onChange={setLookupRef} placeholder="invoice-123" />
-						<Field label="Payment Amount" value={paymentAmount} onChange={setPaymentAmount} placeholder="250" inputMode="numeric" />
+										<Field label={t("debtRegistry.fields.debtReference")}
+											value={lookupRef}
+											onChange={setLookupRef}
+											placeholder={t("debtRegistry.fields.debtReferencePlaceholder")}
+										/>
+										<Field label={t("debtRegistry.fields.paymentAmount")}
+											value={paymentAmount}
+											onChange={setPaymentAmount}
+											placeholder={t("debtRegistry.fields.paymentAmountPlaceholder")}
+											inputMode="numeric"
+										/>
 					</div>
 					<div className="mt-6 flex flex-wrap gap-4">
-						<button className={secondaryButtonClass} onClick={() => lookupDebtId && refreshDebt(lookupDebtId)} disabled={!lookupDebtId || isFetchingDebt}>
-							{isFetchingDebt ? "⏳ Fetching..." : "Aggiorna stato"}
-						</button>
-						<button className={secondaryButtonClass} onClick={handlePayDebt} disabled={!lookupDebtId || isSubmittingTx}>
-							{isSubmittingTx ? "⏳ Processing..." : "Invia rimborso"}
-						</button>
-						<button className={secondaryButtonClass} onClick={decrypt} disabled={!canDecrypt || isDecrypting}>
-							{isDecrypting ? "⏳ Decrypting..." : "Decifra importi"}
-						</button>
+										<button className={secondaryButtonClass} onClick={() => lookupDebtId && refreshDebt(lookupDebtId)} disabled={!lookupDebtId || isFetchingDebt}>
+											{isFetchingDebt ? t("debtRegistry.fetching") : t("debtRegistry.refreshStatus")}
+										</button>
+										<button className={secondaryButtonClass} onClick={handlePayDebt} disabled={!lookupDebtId || isSubmittingTx}>
+											{isSubmittingTx ? t("debtRegistry.processing") : t("debtRegistry.sendRepayment")}
+										</button>
+										<button className={secondaryButtonClass} onClick={decrypt} disabled={!canDecrypt || isDecrypting}>
+											{isDecrypting ? t("debtRegistry.decrypting") : t("debtRegistry.decryptAmounts")}
+										</button>
 					</div>
 					{debtView && (
 						<div className="mt-8 rounded-2xl border border-sky-100/45 bg-sky-50/70 p-6 shadow-inner">
-							<h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-sky-800">Dettagli correnti</h4>
+											<h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-sky-800">{t("debtRegistry.currentDetails")}</h4>
 							<div className="grid gap-3">
-								{printProperty("Debtor", debtView.debtor)}
-								{printProperty("Creditor", debtView.creditor)}
-								{printProperty("Due Date", `${debtView.dueDate} (${new Date(Number(debtView.dueDate) * 1000).toLocaleString()})`)}
-								{printBooleanProperty("Closed", debtView.closed)}
-								{printProperty("Encrypted Amount", outstandingHandle ?? "-")}
-								{printProperty(
-									"Decrypted Outstanding",
-									typeof decryptedOutstanding !== "undefined" ? decryptedOutstanding.toString() : "Not decrypted",
-								)}
-								{printProperty("Active Debt ID", activeDebtId ?? "-")}
+												{printProperty(t("debtRegistry.debtor"), debtView.debtor)}
+												{printProperty(t("debtRegistry.creditor"), debtView.creditor)}
+												{printProperty(t("debtRegistry.dueDate"), `${debtView.dueDate} (${new Date(Number(debtView.dueDate) * 1000).toLocaleString()})`)}
+												{printBooleanProperty(t("debtRegistry.closed"), debtView.closed)}
+												{printProperty(t("debtRegistry.encryptedAmount"), outstandingHandle ?? "-")}
+												{printProperty(
+													t("debtRegistry.decryptedOutstanding"),
+													typeof decryptedOutstanding !== "undefined" ? decryptedOutstanding.toString() : t("debtRegistry.notDecrypted"),
+												)}
+												{printProperty(t("debtRegistry.activeDebtId"), activeDebtId ?? "-")}
 							</div>
 						</div>
 					)}
@@ -615,38 +677,8 @@ export const FHEDebtRegistry = () => {
 			</section>
 		</div>
 	);
-};
 
-type FieldProps = {
-	label: string;
-	value: string;
-	onChange: (value: string) => void;
-	placeholder?: string;
-	type?: string;
-	inputMode?: "text" | "decimal" | "numeric";
-	min?: string;
-	step?: string;
-	max?: string;
-};
 
-const Field = ({ label, value, onChange, placeholder, type = "text", inputMode, min, step, max }: FieldProps) => {
-	return (
-		<label className="flex flex-col space-y-2 text-sky-950">
-			<span className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800">{label}</span>
-			<input
-				className="rounded-xl border border-sky-100/60 bg-sky-50/80 px-3 py-3 text-base text-sky-950 shadow-[0_8px_18px_-12px_rgba(7,89,133,0.35)] transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-200"
-				value={value}
-				onChange={event => onChange(event.target.value)}
-				placeholder={placeholder}
-				type={type}
-				inputMode={inputMode}
-				min={min}
-				step={step}
-				max={max}
-			/>
-		</label>
-	);
-};
 
 function printProperty(name: string, value: unknown) {
 	let displayValue: string;
@@ -693,4 +725,4 @@ function printBooleanProperty(name: string, value: boolean) {
 		</div>
 	);
 }
-
+}

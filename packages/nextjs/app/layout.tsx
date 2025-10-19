@@ -1,6 +1,8 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
+import { LanguageProvider } from "../components/LanguageProvider";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 import { NexusChatWidget } from "../components/NexusChatWidget";
@@ -14,10 +16,13 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning className={``}>
       <body>
-        <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
-          <NexusChatWidget />
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider enableSystem>
+            {/* LanguageSwitcher moved to Footer */}
+            <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+            <NexusChatWidget />
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -1,0 +1,89 @@
+{
+  "welcome": "Welcome to DebtShield!",
+  "description": "Built with 🏗️ Scaffold-ETH 2",
+  "chat_open": "Open Nexus chat",
+  "chat_close": "Close Nexus chat",
+  "language": "Language",
+  "italian": "Italian",
+  "english": "English",
+  "home": {
+    "badge": "Loan Management 3.0",
+    "title": "Manage loans and debts with FHE-guaranteed privacy",
+    "description": "DebtRegistry combines Ethereum smart contracts and Fully Homomorphic Encryption to track debts, create protected repayments, and verify balances without exposing sensitive information. With NexusChat you can coordinate with counterparties securely and instantly.",
+    "openDebtRegistry": "Open Debt Registry",
+    "steps": {
+      "1": {"title": "1. Sign in with Civic", "description": "Authenticate with Civic for fast and secure access."},
+      "2": {"title": "2. Register the debt", "description": "Enter amount, due date, and counterparty: the contract securely encrypts and stores data on-chain."},
+      "3": {"title": "3. Repay confidentially with Zama", "description": "Send confidential repayments thanks to Zama: only involved parties can decrypt the outstanding balance."}
+    },
+    "whatYouCanDo": {
+      "title": "What you can do",
+      "1": "• Declare a debt to any Ethereum address in a verifiable and encrypted way.",
+      "2": "• Share the outstanding balance only with authorized counterparties thanks to FHE decryption.",
+      "3": "• Update the debt with partial repayments while maintaining privacy on the actual value."
+    },
+    "whyCivicZama": {
+      "title": "Why Civic + Zama",
+      "description": "Civic authenticates the user's identity and ensures reliable sessions. Zama's Fully Homomorphic Encryption component enables a flow where the smart contract processes encrypted amounts, preventing third parties from reading sensitive data.",
+      "note": "Once inside the Debt Registry your data will be safe, encrypted, and accessible only to you and authorized counterparties."
+    },
+    "ready": {
+      "title": "Ready to get started?",
+      "description": "Sign in, connect your Civic wallet, and visit the Debt Registry to register your first encrypted debt.",
+      "cta": "Go to Debt Registry"
+    }
+  },
+  "debtRegistry": {
+    "civicSessionRequired": "Civic session required",
+    "signInWithCivic": "Sign in with Civic to use the FHE Debt Registry demo.",
+    "walletNotConnected": "Wallet not connected",
+    "connectWalletCivic": "Connect your wallet through Civic to interact with the Debt Registry.",
+    "civicReady": "dApp Civic Ready",
+    "title": "FHE Debt Registry",
+    "intro": "Manage debts and repayments with verifiable transparency and end-to-end encrypted privacy. All actions go through your Civic wallet, with amounts handled by the contract only in homomorphic form.",
+    "walletConnected": "Wallet connected",
+    "civicSessionRequiredNote": "Civic session required",
+    "newDebt": {
+      "title": "New debt",
+      "description": "Define a new debt relationship by specifying counterparties, amount, and due date. The amount is encrypted client-side before reaching the contract."
+    },
+    "confidentialTokenBalance": "ConfidentialToken Balance",
+    "confidentialTokenBalanceNote": "The balance is stored encrypted on the contract. You can update and decrypt it at any time from the Civic wallet.",
+    "updating": "⏳ Updating...",
+    "refreshBalance": "Refresh balance",
+    "decrypting": "⏳ Decrypting...",
+    "decryptAmounts": "Decrypt amounts",
+    "approveSignatureToDecrypt": "🔐 Approve the signature in Civic to read the clear value.",
+    "fields": {
+      "debtReference": "Debt Reference",
+      "debtReferencePlaceholder": "invoice-123",
+      "creditorAddress": "Creditor Address",
+      "creditorAddressPlaceholder": "0x...",
+      "amount": "Amount (integer)",
+      "amountPlaceholder": "1000",
+      "dueDate": "Due Date",
+      "paymentAmount": "Payment Amount",
+      "paymentAmountPlaceholder": "250"
+    },
+    "processing": "⏳ Processing...",
+    "createNewDebt": "Create new debt",
+    "debtId": "Debt ID",
+    "pending": "pending",
+    "manageDebt": {
+      "title": "Manage debt",
+      "description": "Lookup an existing debt, send a confidential repayment, and request decryption of the outstanding balance."
+    },
+    "fetching": "⏳ Fetching...",
+    "refreshStatus": "Refresh status",
+    "sendRepayment": "Send repayment",
+    "currentDetails": "Current details",
+    "debtor": "Debtor",
+    "creditor": "Creditor",
+    "dueDate": "Due date",
+    "closed": "Closed",
+    "encryptedAmount": "Encrypted Amount",
+    "decryptedOutstanding": "Decrypted Outstanding",
+    "notDecrypted": "Not decrypted",
+    "activeDebtId": "Active Debt ID"
+  }
+}

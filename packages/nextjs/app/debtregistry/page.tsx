@@ -1,4 +1,4 @@
-import { FHEDebtRegistry } from "../_components/FHEDebtRegistry";
+import FHEDebtRegistry from "../_components/FHEDebtRegistry";
 
 export default function Home() {
   return (

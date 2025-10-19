@@ -1,0 +1,89 @@
+{
+  "welcome": "Benvenuto su DebtShield!",
+  "description": "Costruito con 🏗️ Scaffold-ETH 2",
+  "chat_open": "Apri chat Nexus",
+  "chat_close": "Chiudi chat Nexus",
+  "language": "Lingua",
+  "italian": "Italiano",
+  "english": "Inglese",
+  "home": {
+    "badge": "Loan Management 3.0",
+    "title": "Gestisci prestiti e debiti con privacy garantita da FHE",
+    "description": "DebtRegistry combina smart contract Ethereum e crittografia Fully Homomorphic per tenere traccia dei debiti, creare rimborsi protetti e verificare i saldi senza esporre le informazioni sensibili. Con NexusChat puoi coordinarti con le controparti in modo sicuro e immediato.",
+    "openDebtRegistry": "Apri il Debt Registry",
+    "steps": {
+      "1": {"title": "1. Accedi con Civic", "description": "Autenticati con Civic per un accesso rapido e sicuro."},
+      "2": {"title": "2. Registra il debito", "description": "Inserisci importo, scadenza e controparte: il contratto cifra in maniera sicura e memorizza i dati on-chain."},
+      "3": {"title": "3. Ripaga confidenzialmente con Zama", "description": "Invia rimborsi confidenziali grazie a Zama: solo le parti coinvolte possono decifrare il saldo residuo."}
+    },
+    "whatYouCanDo": {
+      "title": "Cosa puoi fare",
+      "1": "• Dichiarare un debito verso un qualsiasi address Ethereum in modo verificabile e cifrato.",
+      "2": "• Condividere solo con le controparti autorizzate il saldo residuo grazie alla decifrazione FHE.",
+      "3": "• Aggiornare il debito con rimborsi parziali mantenendo la privacy sul valore effettivo."
+    },
+    "whyCivicZama": {
+      "title": "Perché Civic + Zama",
+      "description": "Civic autentica l'identità dell'utente e garantisce sessioni affidabili. La componente Fully Homomorphic Encryption di Zama delinea un flusso in cui il contratto smart elabora importi cifrati, impedendo a terzi di leggere i dati sensibili.",
+      "note": "Una volta dentro il Debt Registry i tuoi dati saranno al sicuro, crittografati e accessibili solo a te e alle controparti autorizzate."
+    },
+    "ready": {
+      "title": "Pronto a iniziare?",
+      "description": "Accedi, collega il wallet Civic e visita il Debt Registry per registrare il primo debito cifrato.",
+      "cta": "Vai al Debt Registry"
+    }
+  },
+  "debtRegistry": {
+    "civicSessionRequired": "Sessione Civic obbligatoria",
+    "signInWithCivic": "Accedi con Civic per usare la demo FHE Debt Registry.",
+    "walletNotConnected": "Wallet non connesso",
+    "connectWalletCivic": "Connetti il wallet tramite Civic per interagire con il Debt Registry.",
+    "civicReady": "dApp Civic Ready",
+    "title": "FHE Debt Registry",
+    "intro": "Gestisci debiti e rimborsi con trasparenza verificabile e privacy cifrata end-to-end. Tutte le azioni passano dal tuo wallet Civic, con importi trattati dal contratto solo in forma omomorfica.",
+    "walletConnected": "Wallet connesso",
+    "civicSessionRequiredNote": "Sessione Civic obbligatoria",
+    "newDebt": {
+      "title": "Nuovo debito",
+      "description": "Definisci un nuovo rapporto di debito specificando controparti, importo e scadenza. L'importo viene cifrato lato client prima di raggiungere il contratto."
+    },
+    "confidentialTokenBalance": "Saldo ConfidentialToken",
+    "confidentialTokenBalanceNote": "Il saldo è custodito cifrato sul contratto. Puoi aggiornarlo e decifrarlo in ogni momento dal wallet Civic.",
+    "updating": "⏳ Aggiornamento...",
+    "refreshBalance": "Aggiorna saldo",
+    "decrypting": "⏳ Decifrando...",
+    "decryptAmounts": "Decifra importi",
+    "approveSignatureToDecrypt": "🔐 Approva la firma in Civic per leggere il valore chiaro.",
+    "fields": {
+      "debtReference": "Riferimento debito",
+      "debtReferencePlaceholder": "invoice-123",
+      "creditorAddress": "Indirizzo creditore",
+      "creditorAddressPlaceholder": "0x...",
+      "amount": "Importo (intero)",
+      "amountPlaceholder": "1000",
+      "dueDate": "Data scadenza",
+      "paymentAmount": "Importo rimborso",
+      "paymentAmountPlaceholder": "250"
+    },
+    "processing": "⏳ Elaborazione...",
+    "createNewDebt": "Crea nuovo debito",
+    "debtId": "Debt ID",
+    "pending": "in attesa",
+    "manageDebt": {
+      "title": "Gestisci debito",
+      "description": "Ricerca un debito esistente, invia un rimborso confidenziale e richiedi la decifratura del saldo residuo."
+    },
+    "fetching": "⏳ Ricerca...",
+    "refreshStatus": "Aggiorna stato",
+    "sendRepayment": "Invia rimborso",
+    "currentDetails": "Dettagli correnti",
+    "debtor": "Debitore",
+    "creditor": "Creditore",
+    "dueDate": "Data scadenza",
+    "closed": "Chiuso",
+    "encryptedAmount": "Importo cifrato",
+    "decryptedOutstanding": "Residuo decifrato",
+    "notDecrypted": "Non decifrato",
+    "activeDebtId": "Debt ID attivo"
+  }
+}
